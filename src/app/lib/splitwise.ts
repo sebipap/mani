@@ -1,3 +1,4 @@
+import { cache } from "react"
 import { Expense } from "./type"
 
 const Splitwise = require('splitwise')
@@ -27,7 +28,9 @@ export async function getExpenses(): Promise<Expense[]> {
 		method: 'GET',
 		headers: {
 			Authorization: `Bearer ${process.env.SPLITWISE_API_KEY}`
-		}}
+		},
+		cache: "no-store",
+	}
 	).then(res => res.json())
 
 	return response.expenses
