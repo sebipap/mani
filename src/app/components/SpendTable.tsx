@@ -14,6 +14,7 @@ import {
   Title,
   Badge,
 } from "@tremor/react";
+import { formatDate } from "../lib/utils";
 
 type Props = {
   expenses: Expense[];
@@ -21,7 +22,7 @@ type Props = {
 
 export const SpendTable = ({ expenses }: Props) => (
   <Card>
-    <Title>List of Swiss Federal Councillours</Title>
+    <Title>Last Spendings</Title>
     <Table className="mt-5">
       <TableHead>
         <TableRow>
@@ -50,7 +51,9 @@ export const SpendTable = ({ expenses }: Props) => (
                 {currency_code} {cost}
               </TableCell>
 
-              <TableCell>{created_at}</TableCell>
+              <TableCell>
+                {formatDate(new Date(created_at).getTime())}
+              </TableCell>
 
               <TableCell>
                 {users.map(({ user, user_id }) => (

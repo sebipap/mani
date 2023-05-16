@@ -1,9 +1,6 @@
 "use client";
 import {
-  BadgeDelta,
-  Button,
   Card,
-  DeltaType,
   DonutChart,
   Flex,
   Toggle,
@@ -15,7 +12,6 @@ import {
   Metric,
   Text,
   Title,
-  Legend,
   DateRangePicker,
   DateRangePickerValue,
   MultiSelectBox,
@@ -28,9 +24,26 @@ import { ViewListIcon, ChartPieIcon } from "@heroicons/react/outline";
 import { ArrowNarrowRightIcon } from "@heroicons/react/solid";
 
 import { useEffect, useState } from "react";
-import { CategoryInsights, Expense } from "@/app/lib/type";
-import { groupByCategory, groupByCategoryByDay } from "@/app/lib/utils";
-import { endOfMonth, set, startOfMonth } from "date-fns";
+import {
+  CategoryId,
+  CategoryInsights,
+  Expense,
+  categoriesById,
+  splitwiseCategories,
+} from "@/app/lib/type";
+import {
+  flipArray,
+  formatDate,
+  groupByCategory,
+  groupByCategoryByDay,
+} from "@/app/lib/utils";
+import {
+  endOfMonth,
+  endOfWeek,
+  set,
+  startOfMonth,
+  startOfWeek,
+} from "date-fns";
 
 const valueFormatter = (number: number) =>
   `$ ${Intl.NumberFormat("us").format(number).toString()}`;
@@ -65,17 +78,9 @@ const colors = [
   "slate",
 ] as const;
 
-function revertOrtderOfArray(array: any[]) {
-  const newArray = [];
-  for (let i = array.length - 1; i >= 0; i--) {
-    newArray.push(array[i]);
-  }
-  return newArray;
-}
-
 export const SpendChart = ({ expenses }: Props) => {
   const [dateRange, setDateRange] = useState<DateRangePickerValue>([
-    new Date(2022, 1, 1),
+    new Date(Date.now() - 1000 * 60 * 60 * 24 * 7),
     new Date(),
   ]);
 
@@ -84,9 +89,8 @@ export const SpendChart = ({ expenses }: Props) => {
   const [selectedView, setSelectedView] = useState("chart");
   const [selectedUserIds, setSelectedUserIds] = useState<string[]>();
 
-  const [selectedCategories, setSelectedCategories] = useState<string[]>(
-    Array.from({ length: 100 }, (_, index) => index.toString())
-  );
+  const [selectedCategories, setSelectedCategories] =
+    useState<string[]>(splitwiseCategories);
 
   const users = expenses
     .flatMap(({ users }) => users)
@@ -112,7 +116,7 @@ export const SpendChart = ({ expenses }: Props) => {
     ({ category }) =>
       !selectedCategories ||
       selectedCategories.length === 0 ||
-      selectedCategories.includes(category.id.toString())
+      selectedCategories.includes(String(category.id))
   );
 
   const categoryInsights: CategoryInsights[] = groupByCategory(
@@ -153,6 +157,23 @@ export const SpendChart = ({ expenses }: Props) => {
       };
     });
 
+  const last7Days = {
+    text: "Last 7 days",
+    startDate: new Date(Date.now() - 1000 * 60 * 60 * 24 * 7),
+    endDate: new Date(),
+    value: "last7Days",
+  };
+
+  // last monday to sunday perdiod
+  const lastWeek = {
+    text: "Last week",
+    startDate: startOfWeek(new Date(Date.now() - 1000 * 60 * 60 * 24 * 7)),
+    endDate: endOfWeek(new Date(Date.now() - 1000 * 60 * 60 * 24 * 7)),
+    value: "lastWeek",
+  };
+
+  const dateRangeOptions = [last7Days, lastWeek, ...monthRanges];
+
   return (
     <Card className="mx-auto">
       <Flex className="space-x-8" justifyContent="between" alignItems="center">
@@ -169,18 +190,20 @@ export const SpendChart = ({ expenses }: Props) => {
       <Text className="mt-8">Total</Text>
       <Metric>{valueFormatter(total)}</Metric>
       <Divider />
-      <Flex>
+      <Flex style={{ flexWrap: "wrap" }} className="gap-2">
         <DateRangePicker
           className="max-w-md mx-auto"
           value={dateRange}
           onValueChange={setDateRange}
           dropdownPlaceholder="Seleccionar"
-          options={monthRanges}
+          options={dateRangeOptions}
+          style={{ flex: 1 }}
         />
 
         <MultiSelectBox
           value={selectedUserIds}
           onValueChange={setSelectedUserIds}
+          style={{ flex: 1 }}
         >
           {users.map(({ user: { id, first_name, last_name } }) => (
             <MultiSelectBoxItem
@@ -194,6 +217,7 @@ export const SpendChart = ({ expenses }: Props) => {
         <MultiSelectBox
           value={selectedCategories}
           onValueChange={setSelectedCategories}
+          style={{ flex: 1 }}
         >
           {allCategories.map(({ name, id }) => (
             <MultiSelectBoxItem key={id} value={id.toString()} text={name} />
@@ -203,11 +227,6 @@ export const SpendChart = ({ expenses }: Props) => {
 
       {selectedView === "chart" ? (
         <>
-          <Legend
-            categories={allCategories.map(({ name }) => name)}
-            className="mt-6"
-            colors={[...colors]}
-          />
           <DonutChart
             data={categoryInsights}
             category="total"
@@ -223,7 +242,7 @@ export const SpendChart = ({ expenses }: Props) => {
             className="mt-6"
             data={Object.entries(categoryInsightsByDay).flatMap(
               ([date, categories]) => ({
-                name: new Date(Number(date)).toLocaleDateString(),
+                name: formatDate(Number(date)),
                 ...Object.fromEntries(
                   categories.map(({ name, total }) => [name, total])
                 ),

@@ -34,11 +34,35 @@ export function groupByCategoryByDay(expenses: Expense[]): Record<number, Catego
 	, {} as Record<number, Expense[]>)
 
 
-	return Object.entries(expensesByDay).reduce((acc, [day, expenses]) => ({
+	const expByDay = Object.entries(expensesByDay).reduce((acc, [day, expenses]) => ({
 		...acc,
-		[day]: groupByCategory(expenses)
+		[Number(day)]: groupByCategory(expenses)
 	}), {} as Record<number, CategoryInsights[]>)
-	
 
 
+	// fill days with no expenses
+
+	const firstDay = Number(Object.keys(expByDay)[Object.keys(expByDay).length - 1])
+	const lastDay = Number(Object.keys(expByDay)[0])
+
+	const days = []
+	for (let day = firstDay; day <= lastDay; day +=  1000 * 60 * 60 * 24) {
+		days.push(day)
+	}
+
+	return days.reduce((acc, day) => ({
+		...acc,
+		[day]: expByDay[day] || []
+	}), {} as Record<number, CategoryInsights[]>)
+
+}
+
+export function flipArray<T>(array: T[]): T[] {
+	return array.map((_, i) => array[array.length - 1 - i])
+}
+
+// example: Friday May 3
+export function formatDate(date: number): string {
+	const dateObj = new Date(date)
+	return `${dateObj.toLocaleDateString('en-US', { weekday: 'long' })} ${dateObj.toLocaleDateString('en-US', { month: 'long' })} ${dateObj.getDate()}`
 }
