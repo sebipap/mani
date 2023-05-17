@@ -8,7 +8,7 @@ export default async function Home() {
 
   return (
     <div className="flex justify-center align-middle">
-      <main className="flex min-h-screen flex-col items-center justify-between max-w-3xl mt-7">
+      <main className="flex min-h-screen flex-col items-center justify-between min-w-4 w-[100%] mt-7 max-w-[1000px]">
         <SpendChart {...{ expenses }} />
         <SpendTable {...{ expenses }} />
       </main>
