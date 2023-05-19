@@ -44,6 +44,7 @@ import {
   startOfMonth,
   startOfWeek,
 } from "date-fns";
+import { ExpensesTiles } from "./ExpensesTiles";
 
 const valueFormatter = (number: number) =>
   `$ ${Intl.NumberFormat("us").format(number).toString()}`;
@@ -178,6 +179,7 @@ export const SpendChart = ({ expenses }: Props) => {
     <Card className="mx-auto">
       <Flex className="space-x-8" justifyContent="between" alignItems="center">
         <Title>Overview</Title>
+
         <Toggle
           defaultValue="chart"
           color="gray"
@@ -187,8 +189,15 @@ export const SpendChart = ({ expenses }: Props) => {
           <ToggleItem value="list" icon={ViewListIcon} />
         </Toggle>
       </Flex>
-      <Text className="mt-8">Total</Text>
-      <Metric>{valueFormatter(total)}</Metric>
+      <Flex alignItems="center">
+        <div>
+          <Text className="mt-8">Total</Text>
+          <Metric>{valueFormatter(total)}</Metric>
+        </div>
+        <div className="flex items-center">
+          <ExpensesTiles {...{ expenses }} />
+        </div>
+      </Flex>
       <Divider />
       <Flex style={{ flexWrap: "wrap" }} className="gap-2">
         <DateRangePicker

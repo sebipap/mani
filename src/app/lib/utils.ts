@@ -9,8 +9,12 @@ export function groupByCategory(expenses: Expense[]): CategoryInsights[] {
 		name: expenses.find(expense => expense.category.id === categoryId)?.category.name || '',
 		total: expenses.filter(expense => expense.category.id === categoryId).reduce((acc, expense) => {
 
-			const share = expense.repayments.length  === 0 ? expense.cost : 
-				expense.repayments.find(repayment => repayment.to === expense.created_by.id)?.amount || expense.repayments.find(repayment => repayment.from === expense.created_by.id)?.amount || '0'
+			const isIndividualExpense = expense.repayments.length === 0
+
+			const shareOfGroupExpense = expense.repayments.find(repayment => repayment.to === expense.created_by.id)?.amount || expense.repayments.find(repayment => repayment.from === expense.created_by.id)?.amount || '0'
+
+			const share = isIndividualExpense ? expense.cost : shareOfGroupExpense
+				
 
 			return acc + parseFloat(share)
 		}, 0),

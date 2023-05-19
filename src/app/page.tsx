@@ -1,4 +1,4 @@
-import Image from "next/image";
+import { ExpensesTiles } from "./components/ExpensesTiles";
 import { SpendChart } from "./components/SpendChart";
 import { SpendTable } from "./components/SpendTable";
 import { getExpenses } from "@/app/lib/splitwise";
