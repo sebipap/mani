@@ -44,7 +44,7 @@ export const ExpensesTiles = ({ expenses }: Props) => {
   );
 
   return (
-    <div className="tiles flex shadow m-3 p-[6px] border border-gray-100 rounded bg-white">
+    <div className="tiles flex shadow m-3 p-[6px] border border-gray-100 rounded bg-white z-10 max-w-[100%] overflow-scroll">
       <style>
         {`	
 			.tile:hover .tooltip {
