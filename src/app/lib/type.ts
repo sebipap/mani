@@ -156,8 +156,6 @@ export const categoriesById = {
   45: 'Impuestos'
 }
 
-export const splitwiseCategories = Object.keys(categoriesById).map(
-  (x) => x 
-);
+export const splitwiseCategories = Object.keys(categoriesById);
 
 export type CategoryId = keyof typeof categoriesById

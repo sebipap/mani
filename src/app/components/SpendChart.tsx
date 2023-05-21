@@ -21,16 +21,8 @@ import {
 
 import { ViewListIcon, ChartPieIcon } from "@heroicons/react/outline";
 
-import { ArrowNarrowRightIcon } from "@heroicons/react/solid";
-
-import { useEffect, useState } from "react";
-import {
-  CategoryId,
-  CategoryInsights,
-  Expense,
-  categoriesById,
-  splitwiseCategories,
-} from "@/app/lib/type";
+import { useState } from "react";
+import { CategoryInsights, Expense, splitwiseCategories } from "@/app/lib/type";
 import {
   flipArray,
   formatDate,
@@ -44,7 +36,6 @@ import {
   startOfMonth,
   startOfWeek,
 } from "date-fns";
-import { ExpensesTiles } from "./ExpensesTiles";
 
 const valueFormatter = (number: number) =>
   `$ ${Intl.NumberFormat("us").format(number).toString()}`;
@@ -90,8 +81,9 @@ export const SpendChart = ({ expenses }: Props) => {
   const [selectedView, setSelectedView] = useState("chart");
   const [selectedUserIds, setSelectedUserIds] = useState<string[]>();
 
-  const [selectedCategories, setSelectedCategories] =
-    useState<string[]>(splitwiseCategories);
+  const [selectedCategories, setSelectedCategories] = useState<string[]>(
+    splitwiseCategories.filter((c) => c !== "18")
+  );
 
   const users = expenses
     .flatMap(({ users }) => users)
@@ -193,9 +185,6 @@ export const SpendChart = ({ expenses }: Props) => {
         <div>
           <Text className="mt-8">Total</Text>
           <Metric>{valueFormatter(total)}</Metric>
-        </div>
-        <div className="flex items-center">
-          <ExpensesTiles {...{ expenses }} />
         </div>
       </Flex>
       <Divider />

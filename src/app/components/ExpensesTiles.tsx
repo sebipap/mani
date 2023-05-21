@@ -1,4 +1,3 @@
-import { Siemreap } from "next/font/google";
 import { Expense } from "../lib/type";
 import { groupByCategoryByDay } from "../lib/utils";
 import { format, getDay } from "date-fns";
@@ -44,34 +43,15 @@ export const ExpensesTiles = ({ expenses }: Props) => {
     }[][]
   );
 
-  const [big, setBig] = useState(false);
-
-  const makeBig = () => setBig(true);
-
   return (
-    <div
-      className="tiles flex shadow m-3 p-[6px] border border-gray-100 rounded bg-white"
-      onClick={makeBig}
-    >
+    <div className="tiles flex shadow m-3 p-[6px] border border-gray-100 rounded bg-white">
       <style>
         {`	
 			.tile:hover .tooltip {
 				display: block;
 			}
 
-      .tiles:hover{
-        position: static;
-      }
-
-      .tiles:hover .tile{
-        width: 16px;
-        height: 16px;
-        margin: 2px;
-        transition: width 0.5s, height 0.5s
-      }
-
       .tooltip {
-        transition: position 0.5s;
         font-size: 12px;
       }
 
@@ -88,7 +68,7 @@ export const ExpensesTiles = ({ expenses }: Props) => {
                     ? "transparent"
                     : `hsl(100, 90%, ${100 - logPropotion(day.total) * 100}%`,
               }}
-              className="tile w-[6px] rounded-sm h-[6px] m-[0.5px]"
+              className="tile w-[12px] rounded-sm h-[12px] m-[2px]"
             >
               <div className="tooltip mt-[16px] bg-white absolute hidden rounded shadow p-3">
                 {format(Number(day.date), "EE dd/MM")}
