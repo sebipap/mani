@@ -150,6 +150,15 @@ export const SpendChart = ({ expenses }: Props) => {
       };
     });
 
+
+  // last monday to sunday perdiod
+  const currentWeek = {
+    text: "Current week",
+    startDate: startOfWeek(new Date(Date.now() - 1000 * 60 * 60 * 24 * 7)),
+    endDate: endOfWeek(new Date(Date.now() - 1000 * 60 * 60 * 24 * 7)),
+    value: "lastWeek",
+  };
+
   const last7Days = {
     text: "Last 7 days",
     startDate: new Date(Date.now() - 1000 * 60 * 60 * 24 * 7),
@@ -157,15 +166,7 @@ export const SpendChart = ({ expenses }: Props) => {
     value: "last7Days",
   };
 
-  // last monday to sunday perdiod
-  const lastWeek = {
-    text: "Last week",
-    startDate: startOfWeek(new Date(Date.now() - 1000 * 60 * 60 * 24 * 7)),
-    endDate: endOfWeek(new Date(Date.now() - 1000 * 60 * 60 * 24 * 7)),
-    value: "lastWeek",
-  };
-
-  const dateRangeOptions = [last7Days, lastWeek, ...monthRanges];
+  const dateRangeOptions = [currentWeek, last7Days, ...monthRanges];
 
   return (
     <Card className="mx-auto">
