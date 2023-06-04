@@ -58,7 +58,8 @@ export const SpendTable = ({ expenses }: Props) => (
               <TableCell>
                 {users.map(({ user, user_id }) => (
                   <Badge key={user_id}>
-                    {user.first_name} {user.last_name}
+                    {user.first_name?.[0]}
+                    {user.last_name?.[0]}
                   </Badge>
                 ))}
               </TableCell>
