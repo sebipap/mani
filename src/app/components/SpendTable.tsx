@@ -39,8 +39,12 @@ export const SpendTable = ({ expenses }: Props) => {
         return
       }
 
-      const filteredExpenses = expenses.filter(({ description }) =>
-        normalize(description).includes(normalize(value))
+      const normalizedValue = normalize(value)
+
+      const filteredExpenses = expenses.filter(
+        ({ description, category: { name } }) =>
+          normalize(description).includes(normalizedValue) ||
+          normalize(name).includes(normalizedValue)
       )
 
       setExpensesShown(filteredExpenses)
@@ -55,7 +59,7 @@ export const SpendTable = ({ expenses }: Props) => {
         className="mt-5"
         onChange={handleInputChange}
         name={'expense-search'}
-        placeholder={'Search for a specific spend'}
+        placeholder={'Search for a specific spend or category'}
         disabled={!expenses}
       />
       <Table className="mt-5">
