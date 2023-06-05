@@ -17,6 +17,7 @@ import {
   TextInput,
 } from '@tremor/react'
 import { formatDate } from '../lib/utils'
+import { normalize } from '../lib/string'
 
 type Props = {
   expenses: Expense[]
@@ -33,10 +34,13 @@ export const SpendTable = ({ expenses }: Props) => {
         target: { value },
       } = event
 
-      if (!value || value === '') return
+      if (!value || value === '') {
+        setExpensesShown(expenses)
+        return
+      }
 
       const filteredExpenses = expenses.filter(({ description }) =>
-        description.toLowerCase().includes(value.toLowerCase())
+        normalize(description).includes(normalize(value))
       )
 
       setExpensesShown(filteredExpenses)
