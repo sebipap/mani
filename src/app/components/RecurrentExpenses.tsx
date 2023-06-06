@@ -87,7 +87,7 @@ function recurrentTxs(
   return expenses
     .filter((exp) => {
       const isInMonth =
-        format(month, "MM yy") === format(new Date(exp.created_at), "MM yy");
+        format(month, "MM yy") === format(new Date(exp.date), "MM yy");
 
       const isSimilar = exp.description
         .toLowerCase()
