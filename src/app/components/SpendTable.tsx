@@ -1,56 +1,56 @@
-'use client'
+"use client";
 
-import { ChangeEvent, useCallback, useState } from 'react'
+import { ChangeEvent, useCallback, useState } from "react";
 
-import { Expense } from '@/app/lib/type'
+import { Expense } from "@/app/lib/type";
 
 import {
+  Badge,
   Card,
   Table,
-  TableHead,
-  TableRow,
-  TableHeaderCell,
   TableBody,
   TableCell,
-  Title,
-  Badge,
+  TableHead,
+  TableHeaderCell,
+  TableRow,
   TextInput,
-} from '@tremor/react'
-import { formatDate } from '../lib/utils'
-import { normalize } from '../lib/string'
+  Title,
+} from "@tremor/react";
+import { normalize } from "../lib/string";
+import { formatDate } from "../lib/utils";
 
 type Props = {
-  expenses: Expense[]
-}
+  expenses: Expense[];
+};
 
 export const SpendTable = ({ expenses }: Props) => {
-  const [expensesShown, setExpensesShown] = useState<Expense[]>(expenses)
+  const [expensesShown, setExpensesShown] = useState<Expense[]>(expenses);
 
   const handleInputChange = useCallback(
     (event: ChangeEvent<HTMLInputElement>) => {
-      if (!expenses) return
+      if (!expenses) return;
 
       const {
         target: { value },
-      } = event
+      } = event;
 
-      if (!value || value === '') {
-        setExpensesShown(expenses)
-        return
+      if (!value || value === "") {
+        setExpensesShown(expenses);
+        return;
       }
 
-      const normalizedValue = normalize(value)
+      const normalizedValue = normalize(value);
 
       const filteredExpenses = expenses.filter(
         ({ description, category: { name } }) =>
           normalize(description).includes(normalizedValue) ||
           normalize(name).includes(normalizedValue)
-      )
+      );
 
-      setExpensesShown(filteredExpenses)
+      setExpensesShown(filteredExpenses);
     },
     [expenses]
-  )
+  );
 
   return (
     <Card>
@@ -58,8 +58,8 @@ export const SpendTable = ({ expenses }: Props) => {
       <TextInput
         className="mt-5"
         onChange={handleInputChange}
-        name={'expense-search'}
-        placeholder={'Search for a specific spend or category'}
+        name={"expense-search"}
+        placeholder={"Search for a specific spend or category"}
         disabled={!expenses}
       />
       <Table className="mt-5">
@@ -77,7 +77,7 @@ export const SpendTable = ({ expenses }: Props) => {
             ({
               category,
               cost,
-              created_at,
+              date,
               id,
               currency_code,
               description,
@@ -91,9 +91,7 @@ export const SpendTable = ({ expenses }: Props) => {
                   {currency_code} {cost}
                 </TableCell>
 
-                <TableCell>
-                  {formatDate(new Date(created_at).getTime())}
-                </TableCell>
+                <TableCell>{formatDate(new Date(date).getTime())}</TableCell>
 
                 <TableCell>
                   {users.map(({ user, user_id }) => (
@@ -108,5 +106,5 @@ export const SpendTable = ({ expenses }: Props) => {
         </TableBody>
       </Table>
     </Card>
-  )
-}
+  );
+};

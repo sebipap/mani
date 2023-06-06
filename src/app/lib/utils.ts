@@ -1,3 +1,4 @@
+import { startOfWeek } from "date-fns";
 import { CategoryInsights, Expense } from "./type";
 
 export function groupByCategory(expenses: Expense[]): CategoryInsights[] {
@@ -61,9 +62,22 @@ export function groupByCategoryByDay(expenses: Expense[]): Record<number, Catego
 
 }
 
-export function flipArray<T>(array: T[]): T[] {
-	return array.map((_, i) => array[array.length - 1 - i])
-}
+export function groupByCategoryByWeek(expenses: Expense[]): Record<number, CategoryInsights[]> {
+	const expensesByDay = groupByCategoryByDay(expenses)
+
+	return Object.entries(expensesByDay).reduce((acc, [day, categoryInsights]) => {
+		const date = startOfWeek(Number(day))
+
+		return {
+			...acc,
+			[date.getTime()]: categoryInsights.map(({currency_code, id, name, total}) => ({
+				currency_code,
+				id,
+				name,
+				total: total + categoryInsights.filter(insight => insight.id === id).reduce((acc, insight) => acc + insight.total, 0)
+			}))
+}}, {} as Record<number, CategoryInsights[]>)}	
+
 
 // example: Friday May 3
 export function formatDate(date: number): string {

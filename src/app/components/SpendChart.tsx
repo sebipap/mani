@@ -1,41 +1,35 @@
 "use client";
 import {
+  BarChart,
+  Bold,
   Card,
+  DateRangePicker,
+  DateRangePickerValue,
+  Divider,
   DonutChart,
   Flex,
-  Toggle,
-  ToggleItem,
-  Bold,
-  Divider,
   List,
   ListItem,
   Metric,
-  Text,
-  Title,
-  DateRangePicker,
-  DateRangePickerValue,
   MultiSelectBox,
   MultiSelectBoxItem,
-  BarChart,
+  Text,
+  Title,
+  Toggle,
+  ToggleItem,
 } from "@tremor/react";
 
-import { ViewListIcon, ChartPieIcon } from "@heroicons/react/outline";
+import { ChartPieIcon, ViewListIcon } from "@heroicons/react/outline";
 
-import { useState } from "react";
 import { CategoryInsights, Expense, splitwiseCategories } from "@/app/lib/type";
 import {
-  flipArray,
   formatDate,
   groupByCategory,
   groupByCategoryByDay,
+  groupByCategoryByWeek,
 } from "@/app/lib/utils";
-import {
-  endOfMonth,
-  endOfWeek,
-  set,
-  startOfMonth,
-  startOfWeek,
-} from "date-fns";
+import { endOfMonth, endOfWeek, startOfMonth, startOfWeek } from "date-fns";
+import { useState } from "react";
 
 const valueFormatter = (number: number) =>
   `$ ${Intl.NumberFormat("us").format(number).toString()}`;
@@ -66,7 +60,6 @@ const colors = [
   "green",
   "zinc",
   "neutral",
-
   "slate",
 ] as const;
 
@@ -79,7 +72,8 @@ export const SpendChart = ({ expenses }: Props) => {
   const [minDate, maxDate] = dateRange;
 
   const [selectedView, setSelectedView] = useState("chart");
-  const [selectedUserIds, setSelectedUserIds] = useState<string[]>();
+
+  const [groupedBy, setGroupedBy] = useState<"day" | "week">("day");
 
   const [selectedCategories, setSelectedCategories] = useState<string[]>(
     splitwiseCategories.filter((c) => c !== "18")
@@ -99,13 +93,7 @@ export const SpendChart = ({ expenses }: Props) => {
         created_at <= maxDate.toISOString())
   );
 
-  const expensesFilteredByPerson = expensesFilteredByDate.filter(
-    ({ users }) =>
-      !selectedUserIds ||
-      users.every(({ user }) => selectedUserIds.includes(user.id.toString()))
-  );
-
-  const expensesFilteredByCategory = expensesFilteredByPerson.filter(
+  const expensesFilteredByCategory = expensesFilteredByDate.filter(
     ({ category }) =>
       !selectedCategories ||
       selectedCategories.length === 0 ||
@@ -117,6 +105,10 @@ export const SpendChart = ({ expenses }: Props) => {
   );
 
   const categoryInsightsByDay = groupByCategoryByDay(
+    expensesFilteredByCategory
+  );
+
+  const categoryInsightsByWeek = groupByCategoryByWeek(
     expensesFilteredByCategory
   );
 
@@ -150,12 +142,12 @@ export const SpendChart = ({ expenses }: Props) => {
       };
     });
 
-  const last7Days = {
-    text: "Last 7 days",
-    startDate: new Date(Date.now() - 1000 * 60 * 60 * 24 * 7),
+  const lastXDays = (days: number) => ({
+    text: `Last ${days} days`,
+    startDate: new Date(Date.now() - 1000 * 60 * 60 * 24 * days),
     endDate: new Date(),
-    value: "last7Days",
-  };
+    value: `last${days}Days`,
+  });
 
   // last monday to sunday perdiod
   const lastWeek = {
@@ -165,7 +157,12 @@ export const SpendChart = ({ expenses }: Props) => {
     value: "lastWeek",
   };
 
-  const dateRangeOptions = [last7Days, lastWeek, ...monthRanges];
+  const dateRangeOptions = [
+    lastXDays(7),
+    lastWeek,
+    lastXDays(30),
+    ...monthRanges,
+  ];
 
   return (
     <Card className="mx-auto">
@@ -197,21 +194,6 @@ export const SpendChart = ({ expenses }: Props) => {
           options={dateRangeOptions}
           style={{ flex: 1 }}
         />
-
-        <MultiSelectBox
-          value={selectedUserIds}
-          onValueChange={setSelectedUserIds}
-          style={{ flex: 1 }}
-        >
-          {users.map(({ user: { id, first_name, last_name } }) => (
-            <MultiSelectBoxItem
-              key={id}
-              value={id.toString()}
-              text={`${first_name} ${last_name}`}
-            />
-          ))}
-        </MultiSelectBox>
-
         <MultiSelectBox
           value={selectedCategories}
           onValueChange={setSelectedCategories}
@@ -236,16 +218,26 @@ export const SpendChart = ({ expenses }: Props) => {
             showAnimation={false}
           />
 
+          <Toggle
+            defaultValue="day"
+            onValueChange={setGroupedBy as (v: string) => void}
+          >
+            <ToggleItem value="day" text="Day" />
+            <ToggleItem value="week" text="Week" />
+          </Toggle>
+
           <BarChart
             className="mt-6"
-            data={Object.entries(categoryInsightsByDay).flatMap(
-              ([date, categories]) => ({
-                name: formatDate(Number(date)),
-                ...Object.fromEntries(
-                  categories.map(({ name, total }) => [name, total])
-                ),
-              })
-            )}
+            data={Object.entries(
+              groupedBy === "day"
+                ? categoryInsightsByDay
+                : categoryInsightsByWeek
+            ).flatMap(([date, categories]) => ({
+              name: formatDate(Number(date)),
+              ...Object.fromEntries(
+                categories.map(({ name, total }) => [name, total])
+              ),
+            }))}
             index="name"
             categories={allCategories.map(({ name }) => name)}
             colors={[...colors]}
