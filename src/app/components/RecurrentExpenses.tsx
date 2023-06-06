@@ -95,10 +95,6 @@ function recurrentTxs(
         .filter(Boolean)
         .some((word) => sub.name.split(" ").some((x) => x === word));
 
-      if (isSimilar) {
-        console.log(exp.description, sub.name, exp.description?.split(" "));
-      }
-
       return isInMonth && isSimilar;
     })
     .map((exp) => (
