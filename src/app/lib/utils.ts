@@ -90,7 +90,7 @@ export function expenseShareCost(expense: Expense) {
 
 	const myId = Number(process.env.NEXT_PUBLIC_SPLITWISE_USER_ID)
 
-	if (!myId) throw new Error(`SPLITWISE_USER_ID env variable is not set, ${process.env.NEXT_PUBLIC_SPLITWISE_USER_ID}`)
+	if (!myId) throw new Error(`NEXT_SPLITWISE_USER_ID env variable is not set, ${process.env.NEXT_PUBLIC_SPLITWISE_USER_ID}`)
 
 	if (expense.repayments.length === 0) {
 		return parseFloat(expense.cost);
