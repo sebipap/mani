@@ -101,17 +101,10 @@ export function expenseShareCost(expense: Expense) {
 		if (expenseBorrower === myId) {
 			totalSpent += parseFloat(amount)
 		}
+		if (expensePayer === myId) {
+			totalSpent += parseFloat(expense.cost) - parseFloat(amount)
+		}
 
 	}
-
-	if (expense.description === 'Pantalon gris ropa') {
-		console.log(
-			{
-				totalSpent,
-				repayments: expense.repayments
-			}
-		)
-	}
-
 	return totalSpent
 }
