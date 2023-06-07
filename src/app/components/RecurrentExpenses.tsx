@@ -104,7 +104,7 @@ function recurrentTxs(
           alert(`
 													Description: ${exp.description}
 													Cost: ${exp.cost}
-													Date: ${format(new Date(exp.created_at), "dd/MM/yyyy")}	`)
+													Date: ${format(new Date(exp.date), "dd/MM/yyyy")}	`)
         }
       >
         ✅
