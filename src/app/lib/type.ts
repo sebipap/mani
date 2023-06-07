@@ -41,7 +41,7 @@ export interface Expense {
   deleted_by: any
   category: Category
   receipt: Receipt
-  users: User[]
+  users: UserShares[]
 }
 
 export interface Repayment {
@@ -84,15 +84,15 @@ export interface Receipt {
   original?: string
 }
 
-export interface User {
-  user: User2
+export interface UserShares {
+  user: OtherUser
   user_id: number
   paid_share: string
   owed_share: string
   net_balance: string
 }
 
-export interface User2 {
+export interface OtherUser {
   id: number
   first_name: string
   last_name: string
@@ -159,3 +159,17 @@ export const categoriesById = {
 export const splitwiseCategories = Object.keys(categoriesById);
 
 export type CategoryId = keyof typeof categoriesById
+
+export type User = {
+  id: number;
+  first_name: string;
+  last_name: string;
+  email: string;
+  registration_status: string;
+  picture: any;
+  notifications_read: Date;
+  notifications_count: number;
+  notifications: any;
+  default_currency: string;
+  locale: string;
+}

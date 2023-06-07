@@ -86,11 +86,10 @@ export const SpendChart = ({ expenses }: Props) => {
     });
 
   const expensesFilteredByDate = expenses.filter(
-    ({ created_at }) =>
+    ({ date }) =>
       !minDate ||
       !maxDate ||
-      (created_at >= minDate.toISOString() &&
-        created_at <= maxDate.toISOString())
+      (date >= minDate.toISOString() && date <= maxDate.toISOString())
   );
 
   const expensesFilteredByCategory = expensesFilteredByDate.filter(
@@ -243,6 +242,7 @@ export const SpendChart = ({ expenses }: Props) => {
             colors={[...colors]}
             valueFormatter={valueFormatter}
             stack
+            showLegend={false}
           />
         </>
       ) : (

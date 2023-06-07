@@ -17,7 +17,7 @@ import {
   Title,
 } from "@tremor/react";
 import { normalize } from "../lib/string";
-import { formatDate } from "../lib/utils";
+import { expenseShareCost, formatDate } from "../lib/utils";
 
 type Props = {
   expenses: Expense[];
@@ -67,14 +67,15 @@ export const SpendTable = ({ expenses }: Props) => {
           <TableRow>
             <TableHeaderCell>Details</TableHeaderCell>
             <TableHeaderCell>Cost</TableHeaderCell>
-            <TableHeaderCell>Created At</TableHeaderCell>
+            <TableHeaderCell>My Share</TableHeaderCell>
+            <TableHeaderCell>Date</TableHeaderCell>
             <TableHeaderCell>Users</TableHeaderCell>
           </TableRow>
         </TableHead>
 
         <TableBody>
-          {expensesShown.map(
-            ({
+          {expensesShown.map((expense) => {
+            const {
               category,
               cost,
               date,
@@ -82,14 +83,22 @@ export const SpendTable = ({ expenses }: Props) => {
               currency_code,
               description,
               users,
-            }) => (
-              <TableRow key={id}>
+            } = expense;
+            return (
+              <TableRow
+                key={id}
+                onClick={() => {
+                  // copy stringified expense to clipboard
+                  navigator.clipboard.writeText(JSON.stringify(expense));
+                }}
+              >
                 <TableCell>
                   {description} <Badge>{category.name}</Badge>
                 </TableCell>
                 <TableCell>
                   {currency_code} {cost}
                 </TableCell>
+                <TableCell>{expenseShareCost(expense)}</TableCell>
 
                 <TableCell>{formatDate(new Date(date).getTime())}</TableCell>
 
@@ -101,8 +110,8 @@ export const SpendTable = ({ expenses }: Props) => {
                   ))}
                 </TableCell>
               </TableRow>
-            )
-          )}
+            );
+          })}
         </TableBody>
       </Table>
     </Card>
