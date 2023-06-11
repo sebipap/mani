@@ -38,8 +38,6 @@ export const RecurrentExpenses = ({ expenses }: Props) => {
     new Date().setMonth(new Date().getMonth()),
     new Date().setMonth(new Date().getMonth() - 1),
     new Date().setMonth(new Date().getMonth() - 2),
-    new Date().setMonth(new Date().getMonth() - 3),
-    new Date().setMonth(new Date().getMonth() - 4),
   ];
 
   return (

@@ -5,11 +5,8 @@ import { ChangeEvent, useCallback, useState } from "react";
 import { Expense } from "@/app/lib/type";
 
 import {
-  Badge,
   Card,
   Table,
-  TableBody,
-  TableCell,
   TableHead,
   TableHeaderCell,
   TableRow,
@@ -17,13 +14,13 @@ import {
   Title,
 } from "@tremor/react";
 import { normalize } from "../lib/string";
-import { expenseShareCost, formatDate } from "../lib/utils";
+import { ExpensesTable } from "./ExpensesTable";
 
 type Props = {
   expenses: Expense[];
 };
 
-export const SpendTable = ({ expenses }: Props) => {
+export const HistoricExpenses = ({ expenses }: Props) => {
   const [expensesShown, setExpensesShown] = useState<Expense[]>(expenses);
 
   const handleInputChange = useCallback(
@@ -73,46 +70,7 @@ export const SpendTable = ({ expenses }: Props) => {
           </TableRow>
         </TableHead>
 
-        <TableBody>
-          {expensesShown.map((expense) => {
-            const {
-              category,
-              cost,
-              date,
-              id,
-              currency_code,
-              description,
-              users,
-            } = expense;
-            return (
-              <TableRow
-                key={id}
-                onClick={() => {
-                  // copy stringified expense to clipboard
-                  navigator.clipboard.writeText(JSON.stringify(expense));
-                }}
-              >
-                <TableCell>
-                  {description} <Badge>{category.name}</Badge>
-                </TableCell>
-                <TableCell>
-                  {currency_code} {cost}
-                </TableCell>
-                <TableCell>{expenseShareCost(expense)}</TableCell>
-
-                <TableCell>{formatDate(new Date(date).getTime())}</TableCell>
-
-                <TableCell>
-                  {users.map(({ user, user_id }) => (
-                    <Badge key={user_id}>
-                      {user.first_name} {user.last_name}
-                    </Badge>
-                  ))}
-                </TableCell>
-              </TableRow>
-            );
-          })}
-        </TableBody>
+        <ExpensesTable expenses={expensesShown}></ExpensesTable>
       </Table>
     </Card>
   );
