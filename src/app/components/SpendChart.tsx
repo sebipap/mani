@@ -177,12 +177,7 @@ export const SpendChart = ({ expenses }: Props) => {
           <ToggleItem value="list" icon={ViewListIcon} />
         </Toggle>
       </Flex>
-      <Flex alignItems="center">
-        <div>
-          <Text className="mt-8">Total</Text>
-          <Metric>{valueFormatter(total)}</Metric>
-        </div>
-      </Flex>
+
       <Divider />
       <Flex style={{ flexWrap: "wrap" }} className="gap-2">
         <DateRangePicker

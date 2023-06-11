@@ -110,3 +110,15 @@ export function expenseShareCost(expense: Expense) {
 	}
 	return totalSpent
 }
+
+export function isExpense(thing: any): thing is Expense {
+
+	if (!thing) return false
+
+	return thing.hasOwnProperty('id')
+		&& thing.hasOwnProperty('cost')
+		&& thing.hasOwnProperty('date')
+		&& thing.hasOwnProperty('description')
+		&& thing.hasOwnProperty('category')
+		&& thing.hasOwnProperty('repayments')
+}
