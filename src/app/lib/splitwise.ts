@@ -28,9 +28,7 @@ export async function getExpenses(): Promise<Expense[]> {
 		headers: {
 			Authorization: `Bearer ${process.env.SPLITWISE_API_KEY}`
 		},
-		next: {
-			revalidate: 30
-		}
+		cache: "no-store",
 	}
 	).then(res => res.json())
 
