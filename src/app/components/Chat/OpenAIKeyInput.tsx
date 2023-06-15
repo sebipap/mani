@@ -7,7 +7,7 @@ export const OpenAIKeyInput = () => {
 
   return (
     <Card>
-      <Title>Query</Title>
+      <Title>Chat</Title>
       <Text>
         To start, we&apos;ll need your OpenAI API Key, you can find it{" "}
         <a

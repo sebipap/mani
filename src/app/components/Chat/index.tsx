@@ -8,7 +8,7 @@ import {
   TextInput,
   Title,
 } from "@tremor/react";
-import { useCallback, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { CodeBlock } from "react-code-blocks";
 import { Expense, OpenAIResponse } from "../../lib/type";
 import { OpenAIKeyInput } from "./OpenAIKeyInput";
@@ -115,8 +115,9 @@ export const Chat = ({ expenses }: Props) => {
 		and that the code given runs by itself without needing anything else
 		`;
 
-  const openAIKey =
-    typeof window !== "undefined" ? localStorage.getItem("openAIKey") : null;
+  const [openAIKey, setOpenAIKey] = useState<string | null>(null);
+
+  useEffect(() => setOpenAIKey(localStorage.getItem("openAIKey")), []);
 
   const addMessage = useCallback((message: Message) => {
     setMessages((msgs) => [...msgs, message]);

@@ -1,80 +1,124 @@
 import { startOfWeek } from "date-fns";
-import { CategoryInsights, Expense } from "./type";
+import { CategoryInsight, Expense, categoriesById } from "./type";
 
-export function groupByCategory(expenses: Expense[]): CategoryInsights[] {
+export function groupByCategory(expenses: Expense[]): CategoryInsight[] {
+  const categoryIds = [
+    ...new Set(expenses.map((expense) => expense.category.id)),
+  ];
 
-	const categoryIds = [... new Set(expenses.map(expense => expense.category.id))]
+  const categoryInsights = categoryIds.map((categoryId) => ({
+    id: categoryId,
+    name:
+      expenses.find((expense) => expense.category.id === categoryId)?.category
+        .name || "",
+    total: expenses
+      .filter((expense) => expense.category.id === categoryId)
+      .reduce((acc, expense) => acc + expenseShareCost(expense), 0),
+    currency_code:
+      expenses.find((expense) => expense.category.id === categoryId)
+        ?.currency_code || "",
+  }));
 
-	const categoryInsights = categoryIds.map(categoryId => ({
-		id: categoryId,
-		name: expenses.find(expense => expense.category.id === categoryId)?.category.name || '',
-		total: expenses.filter(expense => expense.category.id === categoryId).reduce((acc, expense) => acc + expenseShareCost(expense), 0),
-		currency_code: expenses.find(expense => expense.category.id === categoryId)?.currency_code || ''
-	}))
-
-	return categoryInsights.sort((a, b) => b.total - a.total)
-
+  return categoryInsights.sort((a, b) => b.total - a.total);
 }
 
-export function groupByCategoryByDay(expenses: Expense[]): Record<number, CategoryInsights[]> {
+export function groupByCategoryByDay(
+  expenses: Expense[]
+): Record<number, CategoryInsight[]> {
+  const expensesByDay: Record<number, Expense[]> = expenses.reduce(
+    (acc, expense) => {
+      const date = new Date(expense.date);
+      const day = new Date(
+        date.getFullYear(),
+        date.getMonth(),
+        date.getDate()
+      ).getTime();
+      return {
+        ...acc,
+        [day]: [...(acc[day] || []), expense],
+      };
+    },
+    {} as Record<number, Expense[]>
+  );
 
-	const expensesByDay: Record<number, Expense[]> = expenses.reduce((acc, expense) => {
-		const date = new Date(expense.date)
-		const day = new Date(date.getFullYear(), date.getMonth(), date.getDate()).getTime()
-		return {
-			...acc,
-			[day]: [...(acc[day] || []), expense]
-		}
-	}
-		, {} as Record<number, Expense[]>)
+  const expByDay = Object.entries(expensesByDay).reduce(
+    (acc, [day, expenses]) => ({
+      ...acc,
+      [Number(day)]: groupByCategory(expenses),
+    }),
+    {} as Record<number, CategoryInsight[]>
+  );
 
+  // fill days with no expenses
 
-	const expByDay = Object.entries(expensesByDay).reduce((acc, [day, expenses]) => ({
-		...acc,
-		[Number(day)]: groupByCategory(expenses)
-	}), {} as Record<number, CategoryInsights[]>)
+  const firstDay = Number(
+    Object.keys(expByDay)[Object.keys(expByDay).length - 1]
+  );
+  const lastDay = Number(Object.keys(expByDay)[0]);
 
+  const days = [];
+  for (let day = firstDay; day <= lastDay; day += 1000 * 60 * 60 * 24) {
+    days.push(day);
+  }
 
-	// fill days with no expenses
-
-	const firstDay = Number(Object.keys(expByDay)[Object.keys(expByDay).length - 1])
-	const lastDay = Number(Object.keys(expByDay)[0])
-
-	const days = []
-	for (let day = firstDay; day <= lastDay; day += 1000 * 60 * 60 * 24) {
-		days.push(day)
-	}
-
-	return days.reduce((acc, day) => ({
-		...acc,
-		[day]: expByDay[day] || []
-	}), {} as Record<number, CategoryInsights[]>)
-
+  return days.reduce(
+    (acc, day) => ({
+      ...acc,
+      [day]: expByDay[day] || [],
+    }),
+    {} as Record<number, CategoryInsight[]>
+  );
 }
 
-export function groupByCategoryByWeek(expenses: Expense[]): Record<number, CategoryInsights[]> {
-	const expensesByDay = groupByCategoryByDay(expenses)
+export function groupByCategoryByWeek(
+  expenses: Expense[]
+): Record<number, CategoryInsight[]> {
+  const weeks: Record<number, CategoryInsight[]> = {};
 
-	return Object.entries(expensesByDay).reduce((acc, [day, categoryInsights]) => {
-		const date = startOfWeek(Number(day))
+  for (const [day, dayInsights] of Object.entries(
+    groupByCategoryByDay(expenses)
+  )) {
+    const weekStart = startOfWeek(new Date(Number(day)), {
+      weekStartsOn: 1,
+    }).getTime();
 
-		return {
-			...acc,
-			[date.getTime()]: categoryInsights.map(({ currency_code, id, name, total }) => ({
-				currency_code,
-				id,
-				name,
-				total: total + categoryInsights.filter(insight => insight.id === id).reduce((acc, insight) => acc + insight.total, 0)
-			}))
-		}
-	}, {} as Record<number, CategoryInsights[]>)
+    if (weeks[weekStart] === undefined) {
+      weeks[weekStart] = dayInsights;
+      console.log("CONTINUE");
+      continue;
+    }
+
+    for (const { id, total, ...rest } of dayInsights) {
+      const weekInsights = weeks[weekStart];
+
+      const weekCategoryInsight = weekInsights.find(
+        (weekInsight) => weekInsight.id === id
+      );
+
+      if (weekCategoryInsight === undefined) {
+        weeks[weekStart].push({ id, total, ...rest });
+        continue;
+      }
+
+      weekCategoryInsight.total += total;
+    }
+  }
+
+  const ifPro = (a: boolean) => a;
+
+  ifPro(2 > 3);
+
+  return weeks;
 }
-
 
 // example: Friday May 3
 export function formatDate(date: number): string {
-	const dateObj = new Date(date)
-	return `${dateObj.toLocaleDateString('en-US', { weekday: 'long' })} ${dateObj.toLocaleDateString('en-US', { month: 'long' })} ${dateObj.getDate()}`
+  const dateObj = new Date(date);
+  return `${dateObj.toLocaleDateString("en-US", {
+    weekday: "long",
+  })} ${dateObj.toLocaleDateString("en-US", {
+    month: "long",
+  })} ${dateObj.getDate()}`;
 }
 
 /**
@@ -87,38 +131,40 @@ export function formatDate(date: number): string {
  * 5. one repayment from me to someone else of $70: $70
  */
 export function expenseShareCost(expense: Expense) {
+  const myId = Number(process.env.NEXT_PUBLIC_SPLITWISE_USER_ID);
 
-	const myId = Number(process.env.NEXT_PUBLIC_SPLITWISE_USER_ID)
+  if (!myId)
+    throw new Error(
+      `NEXT_SPLITWISE_USER_ID env variable is not set, ${process.env.NEXT_PUBLIC_SPLITWISE_USER_ID}`
+    );
 
-	if (!myId) throw new Error(`NEXT_SPLITWISE_USER_ID env variable is not set, ${process.env.NEXT_PUBLIC_SPLITWISE_USER_ID}`)
+  if (expense.repayments.length === 0) {
+    return parseFloat(expense.cost);
+  }
 
-	if (expense.repayments.length === 0) {
-		return parseFloat(expense.cost);
-	}
+  let totalSpent = 0;
+  for (const repayment of expense.repayments) {
+    const { amount, from: expenseBorrower, to: expensePayer } = repayment;
 
-	let totalSpent = 0;
-	for (const repayment of expense.repayments) {
-		const { amount, from: expenseBorrower, to: expensePayer } = repayment
-
-		if (expenseBorrower === myId) {
-			totalSpent += parseFloat(amount)
-		}
-		if (expensePayer === myId) {
-			totalSpent += parseFloat(expense.cost) - parseFloat(amount)
-		}
-
-	}
-	return totalSpent
+    if (expenseBorrower === myId) {
+      totalSpent += parseFloat(amount);
+    }
+    if (expensePayer === myId) {
+      totalSpent += parseFloat(expense.cost) - parseFloat(amount);
+    }
+  }
+  return totalSpent;
 }
 
 export function isExpense(thing: any): thing is Expense {
+  if (!thing) return false;
 
-	if (!thing) return false
-
-	return thing.hasOwnProperty('id')
-		&& thing.hasOwnProperty('cost')
-		&& thing.hasOwnProperty('date')
-		&& thing.hasOwnProperty('description')
-		&& thing.hasOwnProperty('category')
-		&& thing.hasOwnProperty('repayments')
+  return (
+    thing.hasOwnProperty("id") &&
+    thing.hasOwnProperty("cost") &&
+    thing.hasOwnProperty("date") &&
+    thing.hasOwnProperty("description") &&
+    thing.hasOwnProperty("category") &&
+    thing.hasOwnProperty("repayments")
+  );
 }

@@ -21,15 +21,23 @@ import {
 
 import { ChartPieIcon, ViewListIcon } from "@heroicons/react/outline";
 
-import { CategoryInsights, Expense, splitwiseCategories } from "@/app/lib/type";
+import { CategoryInsight, Expense, splitwiseCategories } from "@/app/lib/type";
 import {
   formatDate,
   groupByCategory,
   groupByCategoryByDay,
   groupByCategoryByWeek,
 } from "@/app/lib/utils";
-import { endOfMonth, endOfWeek, startOfMonth, startOfWeek } from "date-fns";
-import { useState } from "react";
+import {
+  endOfDay,
+  endOfMonth,
+  endOfWeek,
+  isSameDay,
+  isSameWeek,
+  startOfMonth,
+  startOfWeek,
+} from "date-fns";
+import { useCallback, useState } from "react";
 
 const valueFormatter = (number: number) =>
   `$ ${Intl.NumberFormat("us").format(number).toString()}`;
@@ -69,6 +77,13 @@ export const SpendChart = ({ expenses }: Props) => {
     new Date(),
   ]);
 
+  const handleDatePickerValueChange = useCallback(
+    ([start, end]: DateRangePickerValue) => {
+      setDateRange([start, end ? endOfDay(end) : undefined]);
+    },
+    []
+  );
+
   const [minDate, maxDate] = dateRange;
 
   const [selectedView, setSelectedView] = useState("chart");
@@ -99,7 +114,7 @@ export const SpendChart = ({ expenses }: Props) => {
       selectedCategories.includes(String(category.id))
   );
 
-  const categoryInsights: CategoryInsights[] = groupByCategory(
+  const categoryInsights: CategoryInsight[] = groupByCategory(
     expensesFilteredByCategory
   );
 
@@ -183,7 +198,7 @@ export const SpendChart = ({ expenses }: Props) => {
         <DateRangePicker
           className="max-w-md mx-auto"
           value={dateRange}
-          onValueChange={setDateRange}
+          onValueChange={handleDatePickerValueChange}
           dropdownPlaceholder="Seleccionar"
           options={dateRangeOptions}
           style={{ flex: 1 }}
@@ -226,12 +241,34 @@ export const SpendChart = ({ expenses }: Props) => {
               groupedBy === "day"
                 ? categoryInsightsByDay
                 : categoryInsightsByWeek
-            ).flatMap(([date, categories]) => ({
-              name: formatDate(Number(date)),
-              ...Object.fromEntries(
-                categories.map(({ name, total }) => [name, total])
-              ),
-            }))}
+            ).flatMap(([date, categories]) => {
+              const isToday = isSameDay(Number(date), Date.now());
+              const isThisWeek = isSameWeek(Number(date), Date.now(), {
+                weekStartsOn: 1,
+              });
+
+              const name =
+                groupedBy == "day" && isToday
+                  ? "Today"
+                  : groupedBy == "week" && isThisWeek
+                  ? "This week"
+                  : formatDate(Number(date));
+
+              console.log({
+                isToday,
+                isThisWeek,
+                name,
+                date,
+                diff: Date.now() - Number(date),
+              });
+
+              return {
+                name,
+                ...Object.fromEntries(
+                  categories.map(({ name, total }) => [name, total])
+                ),
+              };
+            })}
             index="name"
             categories={allCategories.map(({ name }) => name)}
             colors={[...colors]}
