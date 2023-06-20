@@ -26,13 +26,60 @@ const subscriptions = [
 ];
 
 export const RecurrentExpenses = ({ expenses }: Props) => {
-  const recurrentExpenses = expenses.filter((exp) => {
-    const similarTxs = expenses.filter((e) =>
-      e.details?.split(" ").some((words) => exp.details?.includes(words))
+  const similarExpenses = (expense: Expense, expenses: Expense[]) => {
+    return expenses.filter((x) =>
+      expense.description
+        .toLowerCase()
+        ?.split(" ")
+        .filter(Boolean)
+        .some((word) =>
+          x.description
+            .toLowerCase()
+            .split(" ")
+            .some((x) => x === word)
+        )
+    );
+  };
+
+  const commonName = (expenses: Expense[]) => {
+    const words = expenses.flatMap(({ description }) =>
+      description.toLowerCase().split(" ").filter(Boolean)
     );
 
-    return similarTxs.length > 1;
-  });
+    const wordCount = words.reduce((acc, word) => {
+      acc[word] = (acc[word] || 0) + 1;
+      return acc;
+    }, {} as Record<string, number>);
+
+    return Object.entries(wordCount).sort((a, b) => b[1] - a[1])[0][0];
+  };
+
+  const expensesGrouped: Record<string, Expense[]> = {};
+
+  let allExpenses = [...expenses];
+
+  for (const expense of expenses) {
+    const groupExpenses = similarExpenses(expense, allExpenses);
+
+    if (groupExpenses.length < 2) continue;
+
+    allExpenses = allExpenses.filter((x) => !groupExpenses.includes(x));
+
+    expensesGrouped[commonName(groupExpenses)] = groupExpenses;
+  }
+
+  const monthlyExpenses = Object.fromEntries(
+    Object.entries(expensesGrouped).filter(([name, expenses]) => {
+      // return false if there are more than one expense per month
+      const months = expenses.map((x) => format(new Date(x.date), "MM yy"));
+      if (name === "alquiler") {
+        console.log({ months });
+      }
+      const onlyOnePerMonth = months.length === new Set(months).size;
+
+      return onlyOnePerMonth && ![12, 13].includes(expenses[0].category.id);
+    })
+  );
 
   const months = [
     new Date().setMonth(new Date().getMonth()),
@@ -43,13 +90,19 @@ export const RecurrentExpenses = ({ expenses }: Props) => {
   return (
     <Card>
       <Title>Recurring Expenses</Title>
+      {Object.keys(monthlyExpenses).map((key) => (
+        <li key={key}>{key}</li>
+      ))}
       <Table className="mt-5">
         <TableHead>
           <TableRow>
             <TableHeaderCell>Month</TableHeaderCell>
 
             {subscriptions.map((sub) => (
-              <TableHeaderCell key={sub.name}>{sub.name}</TableHeaderCell>
+              <TableHeaderCell key={sub.name}>
+                {sub.name[0].toUpperCase()}
+                {sub.name.slice(1)}
+              </TableHeaderCell>
             ))}
           </TableRow>
         </TableHead>

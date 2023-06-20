@@ -35,13 +35,8 @@ export const Chat = ({ expenses }: Props) => {
 			id: string
 			description: string
 			details: string
-			repayments: {
-				from: number
-				to: number
-				amount: string
-			}[]
-			cost: string
-			date: string
+			cost: number
+			date: Date
 			category: {
 				name: 
 					| 'Utilidades'
