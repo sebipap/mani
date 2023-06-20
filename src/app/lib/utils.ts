@@ -1,5 +1,5 @@
 import { startOfWeek } from "date-fns";
-import { CategoryInsight, Expense, categoriesById } from "./type";
+import { CategoryInsight, Expense } from "./type";
 
 export function groupByCategory(expenses: Expense[]): CategoryInsight[] {
   const categoryIds = [
@@ -13,10 +13,10 @@ export function groupByCategory(expenses: Expense[]): CategoryInsight[] {
         .name || "",
     total: expenses
       .filter((expense) => expense.category.id === categoryId)
-      .reduce((acc, expense) => acc + expenseShareCost(expense), 0),
+      .reduce((acc, expense) => acc + expense.cost, 0),
     currency_code:
       expenses.find((expense) => expense.category.id === categoryId)
-        ?.currency_code || "",
+        ?.currencyCode || "",
   }));
 
   return categoryInsights.sort((a, b) => b.total - a.total);
@@ -84,7 +84,6 @@ export function groupByCategoryByWeek(
 
     if (weeks[weekStart] === undefined) {
       weeks[weekStart] = dayInsights;
-      console.log("CONTINUE");
       continue;
     }
 
@@ -119,41 +118,6 @@ export function formatDate(date: number): string {
   })} ${dateObj.toLocaleDateString("en-US", {
     month: "long",
   })} ${dateObj.getDate()}`;
-}
-
-/**
- * get how much is your share of an expense.
- * examples for a $100 expense:
- * 1. no repayments, you are the creator: $100
- * 2. one repayment from someone else to me of $100: $100
- * 3. one repayment from me to someone else of $100: $0
- * 4. one repayment from someone else to me of $70: $30
- * 5. one repayment from me to someone else of $70: $70
- */
-export function expenseShareCost(expense: Expense) {
-  const myId = Number(process.env.NEXT_PUBLIC_SPLITWISE_USER_ID);
-
-  if (!myId)
-    throw new Error(
-      `NEXT_SPLITWISE_USER_ID env variable is not set, ${process.env.NEXT_PUBLIC_SPLITWISE_USER_ID}`
-    );
-
-  if (expense.repayments.length === 0) {
-    return parseFloat(expense.cost);
-  }
-
-  let totalSpent = 0;
-  for (const repayment of expense.repayments) {
-    const { amount, from: expenseBorrower, to: expensePayer } = repayment;
-
-    if (expenseBorrower === myId) {
-      totalSpent += parseFloat(amount);
-    }
-    if (expensePayer === myId) {
-      totalSpent += parseFloat(expense.cost) - parseFloat(amount);
-    }
-  }
-  return totalSpent;
 }
 
 export function isExpense(thing: any): thing is Expense {

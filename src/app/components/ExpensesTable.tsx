@@ -1,6 +1,6 @@
 import { Badge, TableBody, TableCell, TableRow } from "@tremor/react";
 import { Expense } from "../lib/type";
-import { expenseShareCost, formatDate } from "../lib/utils";
+import { formatDate } from "../lib/utils";
 
 type Props = {
   expenses: Expense[];
@@ -9,8 +9,16 @@ type Props = {
 export const ExpensesTable = ({ expenses }: Props) => (
   <TableBody>
     {expenses.map((expense) => {
-      const { category, cost, date, id, currency_code, description, users } =
-        expense;
+      const {
+        category,
+        cost,
+        date,
+        id,
+        currencyCode,
+        description,
+        users,
+        groupTotal,
+      } = expense;
       return (
         <TableRow
           key={id}
@@ -23,15 +31,15 @@ export const ExpensesTable = ({ expenses }: Props) => (
             {description} <Badge>{category.name}</Badge>
           </TableCell>
           <TableCell>
-            {currency_code} {cost}
+            {currencyCode} {groupTotal}
           </TableCell>
-          <TableCell>{expenseShareCost(expense)}</TableCell>
+          <TableCell>{cost}</TableCell>
 
           <TableCell>{formatDate(new Date(date).getTime())}</TableCell>
 
           <TableCell>
-            {users.map(({ user, user_id }) => (
-              <Badge key={user_id}>
+            {users.map(({ user, userId }) => (
+              <Badge key={userId}>
                 {user.first_name} {user.last_name}
               </Badge>
             ))}

@@ -13,6 +13,8 @@ import {
   Metric,
   MultiSelectBox,
   MultiSelectBoxItem,
+  SelectBox,
+  SelectBoxItem,
   Text,
   Title,
   Toggle,
@@ -85,14 +87,12 @@ export const SpendChart = ({ expenses }: Props) => {
   );
 
   const [minDate, maxDate] = dateRange;
-
   const [selectedView, setSelectedView] = useState("chart");
-
   const [groupedBy, setGroupedBy] = useState<"day" | "week">("day");
-
   const [selectedCategories, setSelectedCategories] = useState<string[]>(
     splitwiseCategories.filter((c) => c !== "18")
   );
+  const [isMultiCategory, setIsMultiCategory] = useState("true");
 
   const users = expenses
     .flatMap(({ users }) => users)
@@ -101,10 +101,7 @@ export const SpendChart = ({ expenses }: Props) => {
     });
 
   const expensesFilteredByDate = expenses.filter(
-    ({ date }) =>
-      !minDate ||
-      !maxDate ||
-      (date >= minDate.toISOString() && date <= maxDate.toISOString())
+    ({ date }) => !minDate || !maxDate || (date >= minDate && date <= maxDate)
   );
 
   const expensesFilteredByCategory = expensesFilteredByDate.filter(
@@ -201,17 +198,41 @@ export const SpendChart = ({ expenses }: Props) => {
           onValueChange={handleDatePickerValueChange}
           dropdownPlaceholder="Seleccionar"
           options={dateRangeOptions}
-          style={{ flex: 1 }}
+          style={{ flex: 3 }}
         />
-        <MultiSelectBox
-          value={selectedCategories}
-          onValueChange={setSelectedCategories}
+        {isMultiCategory === "true" ? (
+          <MultiSelectBox
+            value={selectedCategories}
+            onValueChange={setSelectedCategories}
+            style={{ flex: 3 }}
+          >
+            {allCategories.map(({ name, id }) => (
+              <MultiSelectBoxItem key={id} value={id.toString()} text={name} />
+            ))}
+          </MultiSelectBox>
+        ) : (
+          <SelectBox
+            value={selectedCategories[0]}
+            onValueChange={(value) => setSelectedCategories([value])}
+            style={{ flex: 3 }}
+          >
+            {allCategories.map(({ name, id }) => (
+              <SelectBoxItem key={id} value={id.toString()} text={name} />
+            ))}
+          </SelectBox>
+        )}
+
+        <Toggle
+          value={isMultiCategory}
+          onValueChange={(value: string) => {
+            setIsMultiCategory(value);
+            setSelectedCategories(allCategories.map(({ id }) => id.toString()));
+          }}
           style={{ flex: 1 }}
         >
-          {allCategories.map(({ name, id }) => (
-            <MultiSelectBoxItem key={id} value={id.toString()} text={name} />
-          ))}
-        </MultiSelectBox>
+          <ToggleItem value={"true"} text="Multi" />
+          <ToggleItem value={"false"} text="One" />
+        </Toggle>
       </Flex>
 
       {selectedView === "chart" ? (
@@ -246,22 +267,12 @@ export const SpendChart = ({ expenses }: Props) => {
               const isThisWeek = isSameWeek(Number(date), Date.now(), {
                 weekStartsOn: 1,
               });
-
               const name =
                 groupedBy == "day" && isToday
                   ? "Today"
                   : groupedBy == "week" && isThisWeek
                   ? "This week"
                   : formatDate(Number(date));
-
-              console.log({
-                isToday,
-                isThisWeek,
-                name,
-                date,
-                diff: Date.now() - Number(date),
-              });
-
               return {
                 name,
                 ...Object.fromEntries(

@@ -5,7 +5,7 @@ export type CategoryInsight = {
   currency_code: string;
 };
 
-export interface Expense {
+export interface ExpenseResponse {
   id: number;
   group_id: any;
   friendship_id: any;
@@ -26,7 +26,7 @@ export interface Expense {
   transaction_status: any;
   cost: string;
   currency_code: string;
-  repayments: Repayment[];
+  repayments: RepaymentResponse[];
   date: string;
   created_at: string;
   created_by: CreatedBy;
@@ -35,14 +35,34 @@ export interface Expense {
   deleted_at: any;
   deleted_by: any;
   category: Category;
-  receipt: Receipt;
   users: UserShares[];
+}
+
+export interface Expense {
+  id: number;
+  description: string;
+  details: string;
+  payment: boolean;
+  cost: number;
+  currencyCode: string;
+  date: Date;
+  createdAt: Date;
+  deletedAt: Date;
+  category: Category;
+  users: UserShares[];
+  groupTotal: number;
+}
+
+export interface RepaymentResponse {
+  from: number;
+  to: number;
+  amount: string;
 }
 
 export interface Repayment {
   from: number;
   to: number;
-  amount: string;
+  amount: number;
 }
 
 export interface CreatedBy {
@@ -79,12 +99,20 @@ export interface Receipt {
   original?: string;
 }
 
-export interface UserShares {
+export interface UserSharesResponse {
   user: OtherUser;
   user_id: number;
   paid_share: string;
   owed_share: string;
   net_balance: string;
+}
+
+export interface UserShares {
+  user: OtherUser;
+  userId: number;
+  paidShare: number;
+  owedShare: number;
+  netBalance: number;
 }
 
 export interface OtherUser {

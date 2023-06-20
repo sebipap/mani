@@ -1,4 +1,4 @@
-import { getExpenses } from "@/app/lib/splitwise";
+import { fetchExpenses, getExpenses } from "@/app/lib/splitwise";
 import { Chat } from "./components/Chat";
 import { ExpensesTiles } from "./components/ExpensesTiles";
 import { HistoricExpenses } from "./components/HistoricExpenses";
@@ -7,9 +7,7 @@ import { RecurrentExpenses } from "./components/RecurrentExpenses";
 import { SpendChart } from "./components/SpendChart";
 
 export default async function Home() {
-  const expenses = (await getExpenses()).filter(
-    ({ deleted_at }) => !deleted_at
-  );
+  const expenses = await getExpenses();
 
   return (
     <div className="flex justify-center align-middle">
