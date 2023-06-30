@@ -72,9 +72,6 @@ export const RecurrentExpenses = ({ expenses }: Props) => {
     Object.entries(expensesGrouped).filter(([name, expenses]) => {
       // return false if there are more than one expense per month
       const months = expenses.map((x) => format(new Date(x.date), "MM yy"));
-      if (name === "alquiler") {
-        console.log({ months });
-      }
       const onlyOnePerMonth = months.length === new Set(months).size;
 
       return onlyOnePerMonth && ![12, 13].includes(expenses[0].category.id);

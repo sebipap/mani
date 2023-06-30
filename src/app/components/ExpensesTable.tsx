@@ -38,8 +38,8 @@ export const ExpensesTable = ({ expenses }: Props) => (
           <TableCell>{formatDate(new Date(date).getTime())}</TableCell>
 
           <TableCell>
-            {users.map(({ user, userId }) => (
-              <Badge key={userId}>
+            {users.map(({ user }) => (
+              <Badge key={user.id}>
                 {user.first_name} {user.last_name}
               </Badge>
             ))}

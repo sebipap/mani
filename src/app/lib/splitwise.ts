@@ -11,7 +11,9 @@ type ExpensesQueryParams = {
   offset?: number;
 };
 
-export async function fetchExpenses(): Promise<ExpenseResponse[]> {
+export async function fetchExpenses(
+  accessToken: string
+): Promise<ExpenseResponse[]> {
   const queryParams: ExpensesQueryParams = {
     limit: null,
   };
@@ -30,19 +32,19 @@ export async function fetchExpenses(): Promise<ExpenseResponse[]> {
     {
       method: "GET",
       headers: {
-        Authorization: `Bearer ${process.env.SPLITWISE_API_KEY}`,
+        Authorization: `Bearer ${accessToken}`,
       },
       cache: "no-store",
     }
   ).then((res) => res.json());
 
-  console.log({ expenses: JSON.stringify(expenses) });
-
   return expenses;
 }
 
-export async function getExpenses(): Promise<Expense[]> {
-  const expenses = await fetchExpenses();
+export async function getExpenses(accessToken: string): Promise<Expense[]> {
+  const expenses = await fetchExpenses(accessToken);
+
+  if (!expenses) return [];
 
   const notDeletedExpenses = expenses.filter(({ deleted_at }) => !deleted_at);
 
