@@ -1,7 +1,7 @@
 import { getServerSession } from "next-auth";
 import { CustomSession, authOptions } from "../api/auth/[...nextauth]/route";
 import { Profile } from "./Profile";
-import { getExpenses } from "../lib/splitwise";
+import { fetchUser, getExpenses } from "../lib/splitwise";
 import { Chat } from "./Chat";
 import { SpendChart } from "./SpendChart";
 import { ExpensesTiles } from "./ExpensesTiles";
@@ -15,8 +15,16 @@ const Expenses = async () => {
     accessToken: undefined,
   };
 
-  const expenses =
-    session && accessToken ? await getExpenses(accessToken) : null;
+  let expenses;
+
+  if (accessToken) {
+    const user = await fetchUser(accessToken);
+
+    expenses =
+      session && accessToken && user.id
+        ? await getExpenses(accessToken, user.id)
+        : null;
+  }
 
   return (
     <>

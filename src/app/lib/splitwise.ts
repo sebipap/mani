@@ -1,4 +1,4 @@
-import { Expense, ExpenseResponse } from "./type";
+import { Expense, ExpenseResponse, User } from "./type";
 
 type ExpensesQueryParams = {
   group_id?: number;
@@ -10,6 +10,21 @@ type ExpensesQueryParams = {
   limit?: number | null;
   offset?: number;
 };
+
+export async function fetchUser(accessToken: string): Promise<User> {
+  const { user } = await fetch(
+    `https://secure.splitwise.com/api/v3.0/get_current_user`,
+    {
+      method: "GET",
+      headers: {
+        Authorization: `Bearer ${accessToken}`,
+      },
+      cache: "no-store",
+    }
+  ).then((res) => res.json());
+
+  return user;
+}
 
 export async function fetchExpenses(
   accessToken: string
@@ -41,7 +56,10 @@ export async function fetchExpenses(
   return expenses;
 }
 
-export async function getExpenses(accessToken: string): Promise<Expense[]> {
+export async function getExpenses(
+  accessToken: string,
+  userId: number
+): Promise<Expense[]> {
   const expenses = await fetchExpenses(accessToken);
 
   if (!expenses) return [];
@@ -55,7 +73,6 @@ export async function getExpenses(accessToken: string): Promise<Expense[]> {
       details,
       payment,
       currency_code,
-      repayments,
       date,
       created_at,
       deleted_at,
@@ -75,7 +92,7 @@ export async function getExpenses(accessToken: string): Promise<Expense[]> {
       category,
       users,
       groupTotal: Number(cost),
-      cost: expenseShareCost(expense),
+      cost: expenseShareCost(expense, userId),
     };
   });
 }
@@ -89,14 +106,7 @@ export async function getExpenses(accessToken: string): Promise<Expense[]> {
  * 4. one repayment from someone else to me of $70: $30
  * 5. one repayment from me to someone else of $70: $70
  */
-export function expenseShareCost(expense: ExpenseResponse) {
-  const myId = Number(process.env.NEXT_PUBLIC_SPLITWISE_USER_ID);
-
-  if (!myId)
-    throw new Error(
-      `NEXT_SPLITWISE_USER_ID env variable is not set, ${process.env.NEXT_PUBLIC_SPLITWISE_USER_ID}`
-    );
-
+export function expenseShareCost(expense: ExpenseResponse, userId: number) {
   if (expense.repayments.length === 0) {
     return parseFloat(expense.cost);
   }
@@ -105,10 +115,10 @@ export function expenseShareCost(expense: ExpenseResponse) {
   for (const repayment of expense.repayments) {
     const { amount, from: expenseBorrower, to: expensePayer } = repayment;
 
-    if (expenseBorrower === myId) {
+    if (expenseBorrower === userId) {
       totalSpent += parseFloat(amount);
     }
-    if (expensePayer === myId) {
+    if (expensePayer === userId) {
       totalSpent += parseFloat(expense.cost) - parseFloat(amount);
     }
   }
