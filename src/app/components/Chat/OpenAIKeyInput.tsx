@@ -1,13 +1,16 @@
-import { KeyIcon } from "@heroicons/react/outline";
-import { Button, Card, Flex, Text, TextInput, Title } from "@tremor/react";
+import { Flex, Text, TextInput, Title } from "@tremor/react";
+import { Card } from "@/components/ui/card";
+
 import { useState } from "react";
+import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
 
 export const OpenAIKeyInput = () => {
   const [openAIKey, setOpenAIKey] = useState<string>("");
 
   return (
-    <Card>
-      <Title>Chat</Title>
+    <Card className="p-5 w-[100%]">
+      Chat
       <Text>
         To start, we&apos;ll need your OpenAI API Key, you can find it{" "}
         <a
@@ -18,14 +21,13 @@ export const OpenAIKeyInput = () => {
         </a>
       </Text>
       <Flex className="gap-2">
-        <TextInput
+        <Input
           className="w-full"
           placeholder="Enter your OpenAI API key here..."
           value={openAIKey}
           onChange={({ target }) => setOpenAIKey(target.value)}
         />
         <Button
-          icon={KeyIcon}
           onClick={() => {
             // save the openAI api key to localStorage
             localStorage.setItem("openAIKey", openAIKey);
@@ -33,7 +35,9 @@ export const OpenAIKeyInput = () => {
             // rerender
             window.location.reload();
           }}
-        />
+        >
+          Ok
+        </Button>
       </Flex>
     </Card>
   );

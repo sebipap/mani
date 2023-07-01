@@ -44,7 +44,7 @@ export const ExpensesTiles = ({ expenses }: Props) => {
   );
 
   return (
-    <div className="tiles flex shadow m-3 p-[6px] border border-gray-100 rounded bg-white z-10 max-w-[100%] overflow-scroll">
+    <div className="tiles flex shadow m-3 p-[6px] border border-gray-800 rounded  z-10 max-w-[100%] overflow-scroll">
       <style>
         {`	
 			.tile:hover .tooltip {
@@ -70,7 +70,7 @@ export const ExpensesTiles = ({ expenses }: Props) => {
               }}
               className="tile w-[12px] rounded-sm h-[12px] m-[2px]"
             >
-              <div className="tooltip mt-[16px] bg-white absolute hidden rounded shadow p-3">
+              <div className="tooltip mt-[16px] bg-slate-800 absolute hidden rounded shadow p-3">
                 {format(Number(day.date), "EE dd/MM")}
                 <br />
                 <strong>${day.total}</strong>

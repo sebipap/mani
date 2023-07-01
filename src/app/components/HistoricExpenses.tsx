@@ -5,16 +5,18 @@ import { ChangeEvent, useCallback, useState } from "react";
 import { Expense } from "@/app/lib/type";
 
 import {
-  Card,
   Table,
+  TableBody,
+  TableCaption,
+  TableCell,
   TableHead,
-  TableHeaderCell,
+  TableHeader,
   TableRow,
-  TextInput,
-  Title,
-} from "@tremor/react";
+} from "@/components/ui/table";
 import { normalize } from "../lib/string";
 import { ExpensesTable } from "./ExpensesTable";
+import { Input } from "@/components/ui/input";
+import { Card } from "@/components/ui/card";
 
 type Props = {
   expenses: Expense[];
@@ -50,9 +52,8 @@ export const HistoricExpenses = ({ expenses }: Props) => {
   );
 
   return (
-    <Card>
-      <Title>Last Spendings</Title>
-      <TextInput
+    <>
+      <Input
         className="mt-5"
         onChange={handleInputChange}
         name={"expense-search"}
@@ -60,18 +61,19 @@ export const HistoricExpenses = ({ expenses }: Props) => {
         disabled={!expenses}
       />
       <Table className="mt-5">
-        <TableHead>
+        <TableHeader>
           <TableRow>
-            <TableHeaderCell>Details</TableHeaderCell>
-            <TableHeaderCell>Cost</TableHeaderCell>
-            <TableHeaderCell>My Share</TableHeaderCell>
-            <TableHeaderCell>Date</TableHeaderCell>
-            <TableHeaderCell>Users</TableHeaderCell>
+            <TableHead>Details</TableHead>
+            <TableHead>Category</TableHead>
+            <TableHead>Cost</TableHead>
+            <TableHead>My Share</TableHead>
+            <TableHead>Date</TableHead>
+            <TableHead>Users</TableHead>
           </TableRow>
-        </TableHead>
+        </TableHeader>
 
         <ExpensesTable expenses={expensesShown}></ExpensesTable>
       </Table>
-    </Card>
+    </>
   );
 };

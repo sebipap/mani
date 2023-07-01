@@ -4,15 +4,18 @@ import {
   Accordion,
   AccordionBody,
   AccordionHeader,
-  Card,
   TextInput,
   Title,
 } from "@tremor/react";
+
+import { Card } from "@/components/ui/card";
+
 import { useCallback, useEffect, useState } from "react";
 import { CodeBlock } from "react-code-blocks";
 import { Expense, OpenAIResponse } from "../../lib/type";
 import { OpenAIKeyInput } from "./OpenAIKeyInput";
 import { Result } from "./Result";
+import { Input } from "@/components/ui/input";
 
 type Props = {
   expenses: Expense[];
@@ -164,9 +167,8 @@ export const Chat = ({ expenses }: Props) => {
   if (!openAIKey) return <OpenAIKeyInput />;
 
   return (
-    <Card>
-      <Title>Chat</Title>
-
+    <Card className="p-5 w-[100%]">
+      Chat
       <div className="flex flex-col gap-2 m-3">
         {messages.map((message) => (
           <div key={message.message} className="flex gap-2">
@@ -219,8 +221,7 @@ export const Chat = ({ expenses }: Props) => {
           </div>
         )}
       </div>
-
-      <TextInput
+      <Input
         className="w-full"
         placeholder="Enter your query here..."
         value={query}
@@ -228,16 +229,6 @@ export const Chat = ({ expenses }: Props) => {
         onKeyDown={(e) => {
           if (e.key === "Enter") ask();
         }}
-        icon={
-          loading
-            ? CloudIcon
-            : () => (
-                <ArrowRightIcon
-                  className="w-5 right-3 absolute hover:cursor-pointer"
-                  onClick={ask}
-                />
-              )
-        }
       />
     </Card>
   );

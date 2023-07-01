@@ -1,17 +1,16 @@
 "use client";
 
 import {
-  Card,
   Table,
   TableBody,
   TableCell,
   TableHead,
-  TableHeaderCell,
+  TableHeader,
   TableRow,
-  Title,
-} from "@tremor/react";
+} from "@/components/ui/table";
 import { format } from "date-fns";
 import { Expense } from "../lib/type";
+import { Card } from "@/components/ui/card";
 
 type Props = {
   expenses: Expense[];
@@ -85,24 +84,24 @@ export const RecurrentExpenses = ({ expenses }: Props) => {
   ];
 
   return (
-    <Card>
-      <Title>Recurring Expenses</Title>
+    <Card className="p-5 w-[100%]">
+      Recurring Expenses
       {Object.keys(monthlyExpenses).map((key) => (
         <li key={key}>{key}</li>
       ))}
       <Table className="mt-5">
-        <TableHead>
+        <TableHeader>
           <TableRow>
-            <TableHeaderCell>Month</TableHeaderCell>
+            <TableHead>Month</TableHead>
 
             {subscriptions.map((sub) => (
-              <TableHeaderCell key={sub.name}>
+              <TableHead key={sub.name}>
                 {sub.name[0].toUpperCase()}
                 {sub.name.slice(1)}
-              </TableHeaderCell>
+              </TableHead>
             ))}
           </TableRow>
-        </TableHead>
+        </TableHeader>
         <TableBody>
           {months.map((month) => (
             <TableRow key={String(month)}>
