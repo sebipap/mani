@@ -21,7 +21,7 @@ export const Result = ({ json }: Props) => {
   const isValidExpense = isObject && isExpense(JSON.parse(json));
 
   return (
-    <div className="max-h-[200px] max-w-[600px] overflow-scroll">
+    <div className="max-h-[200px] max-w-[600px] overflow-scroll text-black">
       {isNumber || isString ? (
         <span>{json}</span>
       ) : isArray ? (

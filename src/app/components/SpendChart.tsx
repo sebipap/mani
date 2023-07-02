@@ -32,7 +32,7 @@ type Props = {
   expenses: Expense[];
 };
 
-const colors = [
+export const COLORS = [
   "#fd7f6f",
   "#7eb0d5",
   "#b2e061",
@@ -107,7 +107,7 @@ export const SpendChart = ({ expenses }: Props) => {
           <SelectTrigger className="w-[180px]">
             <SelectValue placeholder="Category" />
           </SelectTrigger>
-          <SelectContent>
+          <SelectContent className="max-h-[350px]">
             <SelectItem value={"all"}>All</SelectItem>
             {allCategories.map(({ name, id }) => (
               <SelectItem key={id} value={id.toString()}>
@@ -136,6 +136,7 @@ export const SpendChart = ({ expenses }: Props) => {
         <div className="flex">
           <PieChart width={400} height={400} cx="50%" cy="50%">
             <Pie
+              animationDuration={400}
               data={categoryInsights}
               dataKey="total"
               nameKey="name"
@@ -150,7 +151,7 @@ export const SpendChart = ({ expenses }: Props) => {
               {categoryInsights.map((entry, index) => (
                 <Cell
                   key={`cell-${index}`}
-                  fill={colors[index % colors.length]}
+                  fill={COLORS[entry.id % COLORS.length]}
                 />
               ))}
             </Pie>
@@ -163,12 +164,11 @@ export const SpendChart = ({ expenses }: Props) => {
                 <TableCell>{formatPrice(sum)}</TableCell>
               </TableRow>
 
-              {categoryInsights.map(({ name, total }, index) => (
+              {categoryInsights.map(({ name, total, id }, index) => (
                 <TableRow key={name}>
                   <TableCell>
                     <Badge
-                      style={{ backgroundColor: colors[index % colors.length] }}
-                      color={colors[index % colors.length]}
+                      style={{ backgroundColor: COLORS[id % COLORS.length] }}
                     >
                       {name}
                     </Badge>

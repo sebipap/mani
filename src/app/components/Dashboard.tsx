@@ -1,14 +1,5 @@
-import { Metadata } from "next";
-import Image from "next/image";
-import {
-  Activity,
-  CreditCard,
-  DollarSign,
-  Download,
-  Users,
-} from "lucide-react";
+"use client";
 
-import { Button } from "@/components/ui/button";
 import {
   Card,
   CardContent,
@@ -16,39 +7,18 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { UserNav } from "./UserNav";
-import { getServerSession } from "next-auth";
-import { CustomSession, authOptions } from "../api/auth/[...nextauth]/route";
-import { fetchUser, getExpenses } from "../lib/splitwise";
 import { HistoricExpenses } from "./HistoricExpenses";
 import { Expense } from "../lib/type";
 import { SpendChart } from "./SpendChart";
-``;
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Chat } from "./Chat";
 
-export const metadata: Metadata = {
-  title: "Dashboard",
-  description: "Example dashboard app using the components.",
+type Props = {
+  expenses: Expense[];
 };
 
-export default async function DashboardPage() {
-  const session = await getServerSession(authOptions);
-
-  const { accessToken } = (session as CustomSession | null) || {
-    accessToken: undefined,
-  };
-
-  let expenses: Expense[] = [];
-
-  if (accessToken) {
-    const user = await fetchUser(accessToken);
-
-    expenses =
-      session && accessToken && user.id
-        ? await getExpenses(accessToken, user.id)
-        : [];
-  }
-
+export default async function Dashboard({ expenses }: Props) {
   return (
     <>
       <div className="flex-col flex">
@@ -59,7 +29,13 @@ export default async function DashboardPage() {
               <UserNav />
             </div>
           </div>
-          {/* <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+          <Tabs defaultValue="overview" className="space-y-4">
+            <TabsList>
+              <TabsTrigger value="overview">Overview</TabsTrigger>
+              <TabsTrigger value="chat">Chat</TabsTrigger>
+            </TabsList>
+            <TabsContent value="overview" className="space-y-4">
+              {/* <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
             <Card>
               <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                 <CardTitle className="text-sm font-medium">
@@ -115,28 +91,29 @@ export default async function DashboardPage() {
               </CardContent>
             </Card>
           </div> */}
-          <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-7">
-            <Card className="col-span-4 overflow-scroll max-w-[100%]">
-              <CardHeader>
-                <CardTitle>Overview</CardTitle>
-              </CardHeader>
-              <CardContent className="pl-2">
-                <SpendChart expenses={expenses} />
-              </CardContent>
-            </Card>
-            <Card className="col-span-3">
-              <CardHeader>
-                <CardTitle>Transactions</CardTitle>
-                <CardDescription>
-                  You made 265 sales this month.
-                </CardDescription>
-              </CardHeader>
-              <CardContent>
-                {" "}
-                <HistoricExpenses expenses={expenses} />
-              </CardContent>
-            </Card>
-          </div>
+              <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-7">
+                <Card className="col-span-4 overflow-scroll max-w-[100%]">
+                  <CardHeader>
+                    <CardTitle>Overview</CardTitle>
+                  </CardHeader>
+                  <CardContent className="p-4">
+                    <SpendChart expenses={expenses} />
+                  </CardContent>
+                </Card>
+                <Card className="col-span-3">
+                  <CardHeader>
+                    <CardTitle>Transactions</CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <HistoricExpenses expenses={expenses} />
+                  </CardContent>
+                </Card>
+              </div>
+            </TabsContent>
+            <TabsContent value="chat" className="space-y-4">
+              <Chat expenses={expenses} />
+            </TabsContent>
+          </Tabs>
         </div>
       </div>
     </>

@@ -175,7 +175,7 @@ export const Chat = ({ expenses }: Props) => {
             {message.from === "user" ? (
               <div className="w-[100%] flex">
                 <div className="bg-green-100 rounded-md p-2 ml-auto">
-                  <div className="relative px-2 py-1 rounded-md bg-green-100 text-sm">
+                  <div className="relative px-2 py-1 rounded-md bg-green-100 text-sm text-black">
                     <div className="absolute top-[-2.9px] right-0 -mr-3 w-3 h-3 transform rotate-45 bg-green-100"></div>
                     {message.message}
                   </div>
@@ -185,7 +185,7 @@ export const Chat = ({ expenses }: Props) => {
               <div className="w-[100%] flex">
                 <div className="bg-blue-100 rounded-md p-2 mr-auto">
                   <div className="relative px-2 py-1 rounded-md bg-blue-100 text-sm">
-                    <div className="absolute top-[-2.9px] left-0 -ml-3 w-3 h-3 transform rotate-45 bg-blue-100"></div>
+                    <div className="absolute top-[-2.9px] left-0 -ml-3 w-3 h-3 transform rotate-45 bg-blue-100 text-black"></div>
                     <Accordion>
                       <AccordionHeader>
                         <Result json={message.message} />
@@ -196,7 +196,7 @@ export const Chat = ({ expenses }: Props) => {
                           className={"font-mono"}
                           language={"javascript"}
                           showLineNumbers={false}
-                          theme={"atom-one-light"}
+                          theme={"atom-one-dark"}
                         />
                       </AccordionBody>
                     </Accordion>

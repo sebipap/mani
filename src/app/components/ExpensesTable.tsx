@@ -2,6 +2,7 @@ import { Badge } from "@/components/ui/badge";
 import { Expense } from "../lib/type";
 import { formatDate } from "../lib/utils";
 import { TableBody, TableCell, TableRow } from "@/components/ui/table";
+import { COLORS } from "./SpendChart";
 
 type Props = {
   expenses: Expense[];
@@ -30,7 +31,11 @@ export const ExpensesTable = ({ expenses }: Props) => (
         >
           <TableCell>{description}</TableCell>
           <TableCell>
-            <Badge>{category.name}</Badge>
+            <Badge
+              style={{ backgroundColor: COLORS[category.id % COLORS.length] }}
+            >
+              {category.name}
+            </Badge>
           </TableCell>
           <TableCell>
             {currencyCode} {groupTotal}

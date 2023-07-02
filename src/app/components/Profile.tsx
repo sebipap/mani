@@ -1,9 +1,8 @@
 "use client";
-import { Button, Title } from "@tremor/react";
 import { Card } from "@/components/ui/card";
-
-import { useSession, signIn, getSession, signOut } from "next-auth/react";
+import { useSession, signIn, signOut } from "next-auth/react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Button } from "@/components/ui/button";
 
 export const Profile = () => {
   const { data } = useSession();
