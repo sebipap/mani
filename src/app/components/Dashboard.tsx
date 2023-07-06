@@ -1,30 +1,25 @@
-"use client";
-
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { UserNav } from "./UserNav";
 import { HistoricExpenses } from "./HistoricExpenses";
 import { Expense } from "../lib/type";
 import { SpendChart } from "./SpendChart";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Chat } from "./Chat";
+import { RecurrentExpenses } from "./RecurrentExpenses";
 
 type Props = {
   expenses: Expense[];
 };
 
-export default async function Dashboard({ expenses }: Props) {
+export default function Dashboard(props: Props) {
+  const { expenses } = props;
+
   return (
     <>
       <div className="flex-col flex">
         <div className="flex-1 space-y-4 p-8 pt-6">
           <div className="flex items-center justify-between space-y-2">
-            <h2 className="text-3xl font-bold tracking-tight">Dashboard</h2>
+            <h2 className="text-3xl font-bold tracking-tight">🫰 mani</h2>
             <div className="flex items-center space-x-2">
               <UserNav />
             </div>
@@ -92,17 +87,31 @@ export default async function Dashboard({ expenses }: Props) {
             </Card>
           </div> */}
               <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-7">
-                <Card className="col-span-4 overflow-scroll max-w-[100%]">
-                  <CardHeader>
-                    <CardTitle>Overview</CardTitle>
-                  </CardHeader>
-                  <CardContent className="p-4">
-                    <SpendChart expenses={expenses} />
-                  </CardContent>
-                </Card>
+                <div className="flex flex-col max-w-[100%] col-span-4 gap-4">
+                  <Card className="overflow-scroll max-w-[100%]">
+                    <CardHeader>
+                      <CardTitle className="font-semibold leading-none tracking-tight">
+                        Charts
+                      </CardTitle>
+                    </CardHeader>
+                    <CardContent className="p-4">
+                      <SpendChart expenses={expenses} />
+                    </CardContent>
+                  </Card>
+                  <Card className="overflow-scroll max-w-[100%]">
+                    <CardHeader>
+                      <CardTitle className="font-semibold leading-none tracking-tight">
+                        Recurrent Expenses
+                      </CardTitle>
+                    </CardHeader>
+                    <CardContent className="p-4">
+                      <RecurrentExpenses expenses={expenses} />
+                    </CardContent>
+                  </Card>
+                </div>
                 <Card className="col-span-3">
                   <CardHeader>
-                    <CardTitle>Transactions</CardTitle>
+                    <CardTitle>Activity</CardTitle>
                   </CardHeader>
                   <CardContent>
                     <HistoricExpenses expenses={expenses} />

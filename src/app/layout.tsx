@@ -1,8 +1,5 @@
 import "./globals.css";
-import { Inter } from "next/font/google";
 import { NextAuthProvider } from "./providers";
-
-const inter = Inter({ subsets: ["latin"] });
 
 export const metadata = {
   title: "My Mani",
@@ -17,7 +14,7 @@ export default function RootLayout({
   return (
     <html lang="en">
       <NextAuthProvider>
-        <body className={inter.className}>{children}</body>
+        <body>{children}</body>
       </NextAuthProvider>
     </html>
   );

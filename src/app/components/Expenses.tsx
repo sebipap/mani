@@ -21,6 +21,8 @@ export default async function Expenses() {
         ? await getExpenses(accessToken, user.id)
         : [];
   }
-  /* @ts-expect-error Server Component */
+
+  if (expenses === undefined) return "loading";
+
   return <Dashboard expenses={expenses} />;
 }

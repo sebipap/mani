@@ -1,5 +1,4 @@
 "use client";
-import { BarChart } from "@tremor/react";
 
 import { CategoryInsight, Expense } from "@/app/lib/type";
 import {
@@ -8,8 +7,8 @@ import {
   groupByCategoryByDay,
   groupByCategoryByWeek,
 } from "@/app/lib/utils";
-import { endOfDay, isSameDay, isSameWeek } from "date-fns";
-import { useCallback, useState } from "react";
+import { isSameDay, isSameWeek } from "date-fns";
+import { useState } from "react";
 import {
   Select,
   SelectContent,
@@ -19,14 +18,79 @@ import {
 } from "@/components/ui/select";
 import { DatePickerWithRange } from "@/components/ui/date-range";
 
-import { PieChart, Pie, Cell } from "recharts";
+import {
+  PieChart,
+  Pie,
+  Cell,
+  BarChart,
+  Tooltip,
+  Bar,
+  ResponsiveContainer,
+  XAxis,
+  YAxis,
+} from "recharts";
 import { DateRange } from "react-day-picker";
 import { Table, TableBody, TableCell, TableRow } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
 import { formatPrice } from "@/lib/utils";
 
-const valueFormatter = (number: number) =>
-  `$ ${Intl.NumberFormat("us").format(number).toString()}`;
+type CTProps = {
+  active?: boolean;
+  payload: {
+    fill: string;
+    value: string;
+    dataKey: string;
+    name: string;
+    payload: Record<string, number>;
+  }[];
+  label: string;
+};
+
+export const CustomTooltip = ({ active, payload, label }: CTProps) => {
+  if (active && payload && payload.length) {
+    return (
+      <div className="bg-black rounded-lg p-3">
+        <style>
+          {`  .recharts-text.recharts-cartesian-axis-tick-value > tspan {
+          font-size: 10px;
+        }`}
+        </style>
+        <p>{label}</p>
+        <div className="flex flex-col">
+          <Table>
+            <TableBody>
+              {payload.map((pld) => (
+                <TableRow key={pld.dataKey}>
+                  <TableCell>
+                    <Badge
+                      style={{
+                        backgroundColor:
+                          COLORS[Number(pld.value) % COLORS.length],
+                      }}
+                    >
+                      {pld.dataKey}
+                    </Badge>
+                  </TableCell>
+                  <TableCell>{formatPrice(Number(pld.value))}</TableCell>
+                </TableRow>
+              ))}
+              <TableRow>
+                <TableCell>Total</TableCell>
+                <TableCell>
+                  {formatPrice(
+                    payload.reduce((acc, pld) => acc + Number(pld.value), 0)
+                  )}
+                </TableCell>
+              </TableRow>
+            </TableBody>
+          </Table>
+        </div>
+      </div>
+    );
+  }
+
+  return null;
+};
 
 type Props = {
   expenses: Expense[];
@@ -98,6 +162,24 @@ export const SpendChart = ({ expenses }: Props) => {
 
   const sum = categoryInsights.reduce((acc, { total }) => acc + total, 0);
 
+  const barChartData = Object.entries(
+    groupedBy === "day" ? categoryInsightsByDay : categoryInsightsByWeek
+  ).flatMap(([date, categories]) => {
+    const isToday = isSameDay(Number(date), Date.now());
+    const isThisWeek = isSameWeek(Number(date), Date.now(), {
+      weekStartsOn: 1,
+    });
+    const name =
+      groupedBy == "day" && isToday
+        ? "Today"
+        : groupedBy == "week" && isThisWeek
+        ? "This week"
+        : formatDate(Number(date));
+    return {
+      name,
+      ...Object.fromEntries(categories.map(({ name, total }) => [name, total])),
+    };
+  });
   return (
     <>
       <div className="gap-2 flex flex-wrap w-[100%]">
@@ -159,11 +241,6 @@ export const SpendChart = ({ expenses }: Props) => {
 
           <Table>
             <TableBody>
-              <TableRow>
-                <TableCell>Total</TableCell>
-                <TableCell>{formatPrice(sum)}</TableCell>
-              </TableRow>
-
               {categoryInsights.map(({ name, total, id }, index) => (
                 <TableRow key={name}>
                   <TableCell>
@@ -177,38 +254,47 @@ export const SpendChart = ({ expenses }: Props) => {
                   <TableCell>{Math.round((total / sum) * 100)}%</TableCell>
                 </TableRow>
               ))}
+              <TableRow>
+                <TableCell>Total</TableCell>
+                <TableCell>{formatPrice(sum)}</TableCell>
+              </TableRow>
             </TableBody>
           </Table>
         </div>
       ) : (
-        <BarChart
-          className="mt-6"
-          data={Object.entries(
-            groupedBy === "day" ? categoryInsightsByDay : categoryInsightsByWeek
-          ).flatMap(([date, categories]) => {
-            const isToday = isSameDay(Number(date), Date.now());
-            const isThisWeek = isSameWeek(Number(date), Date.now(), {
-              weekStartsOn: 1,
-            });
-            const name =
-              groupedBy == "day" && isToday
-                ? "Today"
-                : groupedBy == "week" && isThisWeek
-                ? "This week"
-                : formatDate(Number(date));
-            return {
-              name,
-              ...Object.fromEntries(
-                categories.map(({ name, total }) => [name, total])
-              ),
-            };
-          })}
-          index="name"
-          categories={allCategories.map(({ name }) => name)}
-          valueFormatter={valueFormatter}
-          stack
-          showLegend={false}
-        />
+        <>
+          {/* ____________ */}
+          <ResponsiveContainer width={"100%"} height={300}>
+            <BarChart
+              className="mt-6"
+              data={barChartData}
+              width={500}
+              height={300}
+              margin={{
+                top: 20,
+                right: 30,
+                left: 20,
+                bottom: 5,
+              }}
+            >
+              <Tooltip
+                content={(x: any) => <CustomTooltip {...x} />}
+                cursor={{ fill: "transparent" }}
+              />
+
+              <XAxis dataKey={"name"} fontSize={12} />
+              {allCategories.map(({ name, id }) => (
+                <Bar
+                  dataKey={name}
+                  stackId="a"
+                  key={name}
+                  fill={COLORS[id % COLORS.length]}
+                  name={"name"}
+                />
+              ))}
+            </BarChart>
+          </ResponsiveContainer>
+        </>
       )}
     </>
   );
