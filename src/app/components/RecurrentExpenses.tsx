@@ -109,7 +109,7 @@ export const RecurrentExpenses = ({ expenses }: Props) => {
               {subscriptions.map((sub) => {
                 const recurrent = recurrentTxs(expenses, month, sub);
                 return (
-                  <TableCell key={sub.name}>
+                  <TableCell key={sub.name} className={"text-lg"}>
                     {recurrent.length !== 0
                       ? recurrent
                       : Date.now() >
@@ -147,6 +147,7 @@ function recurrentTxs(
     .map((exp) => (
       <p
         key={exp.id}
+        className={"text-lg"}
         onClick={() =>
           alert(`
 													Description: ${exp.description}

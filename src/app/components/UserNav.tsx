@@ -15,13 +15,9 @@ import { signIn, signOut, useSession } from "next-auth/react";
 
 export function UserNav() {
   const { data } = useSession();
-
   if (!data) return <Button onClick={() => signIn()}>Log In</Button>;
-
   const { user } = data;
-
   if (!user) return null;
-
   const { image, name, email } = user;
 
   return (
@@ -44,8 +40,6 @@ export function UserNav() {
             </p>
           </div>
         </DropdownMenuLabel>
-        <DropdownMenuSeparator />
-
         <DropdownMenuSeparator />
         <DropdownMenuItem onClick={() => signOut()}>
           <LogOut className="mr-2 h-4 w-4" />

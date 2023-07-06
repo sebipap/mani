@@ -64,8 +64,7 @@ export const CustomTooltip = ({ active, payload, label }: CTProps) => {
                   <TableCell>
                     <Badge
                       style={{
-                        backgroundColor:
-                          COLORS[Number(pld.value) % COLORS.length],
+                        backgroundColor: pld.fill,
                       }}
                     >
                       {pld.dataKey}
