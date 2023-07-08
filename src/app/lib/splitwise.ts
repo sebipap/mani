@@ -1,3 +1,4 @@
+import { addUSDPrice } from "@/lib/currency";
 import { Expense, ExpenseResponse, User } from "./type";
 
 type ExpensesQueryParams = {
@@ -64,37 +65,40 @@ export async function getExpenses(
 
   if (!expenses) return [];
 
-  const notDeletedExpenses = expenses.filter(({ deleted_at }) => !deleted_at);
-
-  return notDeletedExpenses.map((expense) => {
-    const {
-      id,
-      description,
-      details,
-      payment,
-      currency_code,
-      date,
-      created_at,
-      deleted_at,
-      category,
-      users,
-      cost,
-    } = expense;
-    return {
-      id,
-      description,
-      details,
-      payment,
-      currencyCode: currency_code,
-      date: new Date(date),
-      createdAt: new Date(created_at),
-      deletedAt: new Date(deleted_at),
-      category,
-      users,
-      groupTotal: Number(cost),
-      cost: expenseShareCost(expense, userId),
-    };
-  });
+  return Promise.all(
+    expenses
+      .filter(({ deleted_at }) => !deleted_at)
+      .map((expense) => {
+        const {
+          id,
+          description,
+          details,
+          payment,
+          currency_code,
+          date,
+          created_at,
+          deleted_at,
+          category,
+          users,
+          cost,
+        } = expense;
+        return {
+          id,
+          description,
+          details,
+          payment,
+          currencyCode: currency_code,
+          date: new Date(date),
+          createdAt: new Date(created_at),
+          deletedAt: new Date(deleted_at),
+          category,
+          users,
+          groupTotal: Number(cost),
+          cost: expenseShareCost(expense, userId),
+        };
+      })
+      .map(addUSDPrice)
+  );
 }
 
 /**

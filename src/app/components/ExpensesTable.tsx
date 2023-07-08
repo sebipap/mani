@@ -20,6 +20,7 @@ export const ExpensesTable = ({ expenses }: Props) => (
         description,
         users,
         groupTotal,
+        costUSD,
       } = expense;
       return (
         <TableRow
@@ -40,10 +41,11 @@ export const ExpensesTable = ({ expenses }: Props) => (
           <TableCell>
             {currencyCode} {groupTotal}
           </TableCell>
-          <TableCell>{cost}</TableCell>
-
+          <TableCell>
+            {currencyCode} {cost}
+          </TableCell>
+          <TableCell>USD {costUSD}</TableCell>
           <TableCell>{formatDate(new Date(date).getTime())}</TableCell>
-
           <TableCell>
             <div className="flex gap-2">
               {users.map(({ user }) => (

@@ -67,6 +67,7 @@ export const HistoricExpenses = ({ expenses }: Props) => {
             <TableHead>Category</TableHead>
             <TableHead>Cost</TableHead>
             <TableHead>My Share</TableHead>
+            <TableHead>USD Price</TableHead>
             <TableHead>Date</TableHead>
             <TableHead>Users</TableHead>
           </TableRow>

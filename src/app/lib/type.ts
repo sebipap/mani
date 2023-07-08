@@ -51,6 +51,7 @@ export interface Expense {
   category: Category;
   users: UserShares[];
   groupTotal: number;
+  costUSD?: number;
 }
 
 export interface RepaymentResponse {

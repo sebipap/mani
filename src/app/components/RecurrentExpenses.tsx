@@ -16,14 +16,6 @@ type Props = {
   expenses: Expense[];
 };
 
-const subscriptions = [
-  { name: "alquiler", expiration: 5 },
-  { name: "edenor", expiration: 18 },
-  { name: "metrogas", expiration: 8 },
-  { name: "expensas", expiration: 20 },
-  { name: "telecentro", expiration: 10 },
-];
-
 export const RecurrentExpenses = ({ expenses }: Props) => {
   const similarExpenses = (expense: Expense, expenses: Expense[]) => {
     return expenses.filter((x) =>
@@ -83,21 +75,24 @@ export const RecurrentExpenses = ({ expenses }: Props) => {
     new Date().setMonth(new Date().getMonth() - 2),
   ];
 
+  const subscriptions = Object.entries(monthlyExpenses)
+    .sort(
+      ([_1, expenses1], [_2, expenses2]) =>
+        expenses2[0].cost - expenses1[0].cost
+    )
+    .map(([str]) => str);
   return (
     <Card className="p-5 w-[100%]">
       Recurring Expenses
-      {Object.keys(monthlyExpenses).map((key) => (
-        <li key={key}>{key}</li>
-      ))}
       <Table className="mt-5">
         <TableHeader>
           <TableRow>
             <TableHead>Month</TableHead>
 
             {subscriptions.map((sub) => (
-              <TableHead key={sub.name}>
-                {sub.name[0].toUpperCase()}
-                {sub.name.slice(1)}
+              <TableHead key={sub}>
+                {sub[0].toUpperCase()}
+                {sub.slice(1)}
               </TableHead>
             ))}
           </TableRow>
@@ -109,11 +104,10 @@ export const RecurrentExpenses = ({ expenses }: Props) => {
               {subscriptions.map((sub) => {
                 const recurrent = recurrentTxs(expenses, month, sub);
                 return (
-                  <TableCell key={sub.name} className={"text-lg"}>
+                  <TableCell key={sub} className={"text-lg"}>
                     {recurrent.length !== 0
                       ? recurrent
-                      : Date.now() >
-                        month + sub.expiration * 24 * 60 * 60 * 1000
+                      : Date.now() > month + 31 * 24 * 60 * 60 * 1000
                       ? "❌"
                       : "⏳"}
                   </TableCell>
@@ -126,11 +120,7 @@ export const RecurrentExpenses = ({ expenses }: Props) => {
     </Card>
   );
 };
-function recurrentTxs(
-  expenses: Expense[],
-  month: number,
-  sub: { name: string; expiration: number }
-) {
+function recurrentTxs(expenses: Expense[], month: number, sub: string) {
   return expenses
     .filter((exp) => {
       const isInMonth =
@@ -140,7 +130,7 @@ function recurrentTxs(
         .toLowerCase()
         ?.split(" ")
         .filter(Boolean)
-        .some((word) => sub.name.split(" ").some((x) => x === word));
+        .some((word) => sub.split(" ").some((x) => x === word));
 
       return isInMonth && isSimilar;
     })
