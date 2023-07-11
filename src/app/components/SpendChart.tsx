@@ -178,9 +178,8 @@ export const SpendChart = ({ expenses }: Props) => {
   });
   return (
     <>
-      <div className="gap-2 flex flex-wrap w-[100%]">
+      <div className="gap-2 flex flex-nowrap w-[100%]">
         <DatePickerWithRange date={dateRange} setDate={setDateRange} />
-
         <Select value={category} onValueChange={setCategory}>
           <SelectTrigger className="w-[180px]">
             <SelectValue placeholder="Category" />
