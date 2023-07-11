@@ -1,4 +1,4 @@
-import { addUSDPrice } from "@/lib/currency";
+import { addUSDPrice, fetchPrices } from "@/lib/currency";
 import { Expense, ExpenseResponse, User } from "./type";
 
 type ExpensesQueryParams = {
@@ -65,6 +65,8 @@ export async function getExpenses(
 
   if (!expenses) return [];
 
+  const prices = await fetchPrices();
+
   return Promise.all(
     expenses
       .filter(({ deleted_at }) => !deleted_at)
@@ -97,7 +99,7 @@ export async function getExpenses(
           cost: expenseShareCost(expense, userId),
         };
       })
-      .map(addUSDPrice)
+      .map((expense) => addUSDPrice(expense, prices))
   );
 }
 

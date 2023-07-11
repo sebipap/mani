@@ -180,6 +180,26 @@ export const categoriesById = {
   50: "Guardería",
 };
 
+export const RECURRENT_CATEGORIES = [
+  1, // Utilidades
+  2, // Sin categoría
+  3, // Alquiler
+  4, // Hipoteca
+  5, // Electricidad
+  6, // Calefacción
+  7, // Agua
+  8, // TV/teléfono/Internet
+  9, // Estacionamiento
+  10, // Seguro
+  11, // Otro
+  19, // Entretenimiento
+  37, // Basura
+  43, // Gastos médicos
+  45, // Impuestos
+  49, // Formación
+  50, // Guardería
+];
+
 export const splitwiseCategories = Object.keys(categoriesById);
 
 export type CategoryId = keyof typeof categoriesById;

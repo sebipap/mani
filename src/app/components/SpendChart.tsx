@@ -33,6 +33,7 @@ import { DateRange } from "react-day-picker";
 import { Table, TableBody, TableCell, TableRow } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
 import { formatPrice } from "@/lib/utils";
+import { convertARStoUSD, fetchPrices } from "@/lib/currency";
 
 type CTProps = {
   active?: boolean;
@@ -116,12 +117,7 @@ export const SpendChart = ({ expenses }: Props) => {
   const { from: minDate, to: maxDate } = dateRange || {};
   const [groupedBy, setGroupedBy] = useState<"day" | "week" | "total">("day");
   const [category, setCategory] = useState<string>("all");
-
-  const users = expenses
-    .flatMap(({ users }) => users)
-    .filter((obj, pos, arr) => {
-      return arr.map((mapObj) => mapObj.user.id).indexOf(obj.user.id) === pos;
-    });
+  const [currency, setCurrency] = useState<"USD" | "ARS">("USD");
 
   const expensesFilteredByDate = expenses.filter(
     ({ date }) => !minDate || !maxDate || (date >= minDate && date <= maxDate)
@@ -148,7 +144,8 @@ export const SpendChart = ({ expenses }: Props) => {
   );
 
   const categoryInsights: CategoryInsight[] = groupByCategory(
-    expensesFilteredByCategory
+    expensesFilteredByCategory,
+    currency
   );
 
   const categoryInsightsByDay = groupByCategoryByDay(
@@ -197,6 +194,20 @@ export const SpendChart = ({ expenses }: Props) => {
             ))}
           </SelectContent>
         </Select>
+
+        <Select
+          value={currency}
+          onValueChange={setCurrency as (value: string) => void}
+        >
+          <SelectTrigger className="w-[180px]">
+            <SelectValue placeholder="Currency" />
+          </SelectTrigger>
+          <SelectContent className="max-h-[350px]">
+            <SelectItem value={"ARS"}>{"ARS"}</SelectItem>
+            <SelectItem value={"USD"}>{"USD"}</SelectItem>
+          </SelectContent>
+        </Select>
+
         <Select
           value={groupedBy}
           onValueChange={(value: "day" | "week" | "total") =>
@@ -240,7 +251,7 @@ export const SpendChart = ({ expenses }: Props) => {
 
           <Table>
             <TableBody>
-              {categoryInsights.map(({ name, total, id }, index) => (
+              {categoryInsights.map(({ name, total, id }) => (
                 <TableRow key={name}>
                   <TableCell>
                     <Badge

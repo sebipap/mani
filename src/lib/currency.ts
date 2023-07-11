@@ -19,27 +19,33 @@ export async function fetchPrices() {
     }));
 }
 
-async function convertARStoUSD(cost: number, date: Date) {
-  const prices = await fetchPrices();
+export async function convertARStoUSD(
+  cost: number,
+  date: Date,
+  prices: { date: Date; value: number }[]
+) {
+  const closestPrice = prices.sort((p1, p2) => {
+    const priceDate1 = new Date(p1.date);
+    const priceDate2 = new Date(p2.date);
+    const diff1 = Math.abs(priceDate1.getTime() - date.getTime());
+    const diff2 = Math.abs(priceDate2.getTime() - date.getTime());
+    return diff1 - diff2;
+  })[0];
 
-  const closestPrice = prices.sort(
-    (p1, p2) =>
-      new Date(p1.date).getTime() -
-      date.getTime() -
-      (new Date(p2.date).getTime() - date.getTime())
-  )[0];
-
-  return closestPrice.value;
+  return Number((cost / closestPrice?.value).toFixed(2));
 }
 
-export async function addUSDPrice(expense: Expense): Promise<Expense> {
+export async function addUSDPrice(
+  expense: Expense,
+  prices: { date: Date; value: number }[]
+): Promise<Expense> {
   const { cost, currencyCode, date } = expense;
 
   const costUSD =
     currencyCode === "USD"
       ? cost
       : currencyCode === "ARS"
-      ? await convertARStoUSD(cost, date)
+      ? await convertARStoUSD(cost, date, prices)
       : undefined;
 
   return { ...expense, costUSD };

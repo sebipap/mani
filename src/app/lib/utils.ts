@@ -1,7 +1,10 @@
 import { startOfWeek } from "date-fns";
 import { CategoryInsight, Expense } from "./type";
 
-export function groupByCategory(expenses: Expense[]): CategoryInsight[] {
+export function groupByCategory(
+  expenses: Expense[],
+  currency: "USD" | "ARS" = "ARS"
+): CategoryInsight[] {
   const categoryIds = [
     ...new Set(expenses.map((expense) => expense.category.id)),
   ];
@@ -13,7 +16,11 @@ export function groupByCategory(expenses: Expense[]): CategoryInsight[] {
         .name || "",
     total: expenses
       .filter((expense) => expense.category.id === categoryId)
-      .reduce((acc, expense) => acc + expense.cost, 0),
+      .reduce(
+        (acc, expense) =>
+          acc + (expense[currency === "USD" ? "costUSD" : "cost"] || 0),
+        0
+      ),
     currency_code:
       expenses.find((expense) => expense.category.id === categoryId)
         ?.currencyCode || "",

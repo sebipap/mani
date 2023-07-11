@@ -9,7 +9,7 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { format } from "date-fns";
-import { Expense } from "../lib/type";
+import { Expense, RECURRENT_CATEGORIES } from "../lib/type";
 import { Card } from "@/components/ui/card";
 
 type Props = {
@@ -60,12 +60,15 @@ export const RecurrentExpenses = ({ expenses }: Props) => {
   }
 
   const monthlyExpenses = Object.fromEntries(
-    Object.entries(expensesGrouped).filter(([name, expenses]) => {
+    Object.entries(expensesGrouped).filter(([_, expenses]) => {
       // return false if there are more than one expense per month
       const months = expenses.map((x) => format(new Date(x.date), "MM yy"));
       const onlyOnePerMonth = months.length === new Set(months).size;
 
-      return onlyOnePerMonth && ![12, 13].includes(expenses[0].category.id);
+      return (
+        onlyOnePerMonth &&
+        RECURRENT_CATEGORIES.includes(expenses[0].category.id)
+      );
     })
   );
 
@@ -82,8 +85,7 @@ export const RecurrentExpenses = ({ expenses }: Props) => {
     )
     .map(([str]) => str);
   return (
-    <Card className="p-5 w-[100%]">
-      Recurring Expenses
+    <>
       <Table className="mt-5">
         <TableHeader>
           <TableRow>
@@ -117,7 +119,7 @@ export const RecurrentExpenses = ({ expenses }: Props) => {
           ))}
         </TableBody>
       </Table>
-    </Card>
+    </>
   );
 };
 function recurrentTxs(expenses: Expense[], month: number, sub: string) {
