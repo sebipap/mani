@@ -194,6 +194,7 @@ export const RECURRENT_CATEGORIES = [
   11, // Otro
   19, // Entretenimiento
   37, // Basura
+  44, // "Otro",
   43, // Gastos médicos
   45, // Impuestos
   49, // Formación

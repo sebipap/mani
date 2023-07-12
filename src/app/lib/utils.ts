@@ -3,7 +3,7 @@ import { CategoryInsight, Expense } from "./type";
 
 export function groupByCategory(
   expenses: Expense[],
-  currency: "USD" | "ARS" = "ARS"
+  currency: "USD" | "ARS"
 ): CategoryInsight[] {
   const categoryIds = [
     ...new Set(expenses.map((expense) => expense.category.id)),
@@ -30,7 +30,8 @@ export function groupByCategory(
 }
 
 export function groupByCategoryByDay(
-  expenses: Expense[]
+  expenses: Expense[],
+  currency: "USD" | "ARS"
 ): Record<number, CategoryInsight[]> {
   const expensesByDay: Record<number, Expense[]> = expenses.reduce(
     (acc, expense) => {
@@ -51,7 +52,7 @@ export function groupByCategoryByDay(
   const expByDay = Object.entries(expensesByDay).reduce(
     (acc, [day, expenses]) => ({
       ...acc,
-      [Number(day)]: groupByCategory(expenses),
+      [Number(day)]: groupByCategory(expenses, currency),
     }),
     {} as Record<number, CategoryInsight[]>
   );
@@ -78,12 +79,13 @@ export function groupByCategoryByDay(
 }
 
 export function groupByCategoryByWeek(
-  expenses: Expense[]
+  expenses: Expense[],
+  currency: "USD" | "ARS"
 ): Record<number, CategoryInsight[]> {
   const weeks: Record<number, CategoryInsight[]> = {};
 
   for (const [day, dayInsights] of Object.entries(
-    groupByCategoryByDay(expenses)
+    groupByCategoryByDay(expenses, currency)
   )) {
     const weekStart = startOfWeek(new Date(Number(day)), {
       weekStartsOn: 1,

@@ -115,12 +115,20 @@ export const SpendChart = ({ expenses }: Props) => {
   });
 
   const { from: minDate, to: maxDate } = dateRange || {};
-  const [groupedBy, setGroupedBy] = useState<"day" | "week" | "total">("day");
+  const [groupedBy, setGroupedBy] = useState<"day" | "week" | "total">("total");
   const [category, setCategory] = useState<string>("all");
   const [currency, setCurrency] = useState<"USD" | "ARS">("USD");
 
   const expensesFilteredByDate = expenses.filter(
     ({ date }) => !minDate || !maxDate || (date >= minDate && date <= maxDate)
+  );
+
+  const timePeriod = (maxDate?.getTime() || 0) - (minDate?.getTime() || 0);
+
+  const expensesPreviousPeriod = expenses.filter(
+    ({ date }) =>
+      !minDate ||
+      (date < minDate && date >= new Date(minDate.getTime() - timePeriod))
   );
 
   const allCategories = expenses
@@ -148,15 +156,31 @@ export const SpendChart = ({ expenses }: Props) => {
     currency
   );
 
+  const previousCategoryInsights: CategoryInsight[] = groupByCategory(
+    expensesPreviousPeriod.filter(
+      ({ category }) =>
+        !selectedCategories ||
+        selectedCategories.length === 0 ||
+        selectedCategories.includes(String(category.id))
+    ),
+    currency
+  );
+
   const categoryInsightsByDay = groupByCategoryByDay(
-    expensesFilteredByCategory
+    expensesFilteredByCategory,
+    currency
   );
 
   const categoryInsightsByWeek = groupByCategoryByWeek(
-    expensesFilteredByCategory
+    expensesFilteredByCategory,
+    currency
   );
 
   const sum = categoryInsights.reduce((acc, { total }) => acc + total, 0);
+  const prevSum = previousCategoryInsights.reduce(
+    (acc, { total }) => acc + total,
+    0
+  );
 
   const barChartData = Object.entries(
     groupedBy === "day" ? categoryInsightsByDay : categoryInsightsByWeek
@@ -176,6 +200,11 @@ export const SpendChart = ({ expenses }: Props) => {
       ...Object.fromEntries(categories.map(({ name, total }) => [name, total])),
     };
   });
+
+  const sumIncrement = prevSum
+    ? Math.round(((sum - prevSum) / prevSum) * 100)
+    : undefined;
+
   return (
     <>
       <div className="gap-2 flex flex-nowrap w-[100%]">
@@ -225,7 +254,7 @@ export const SpendChart = ({ expenses }: Props) => {
       </div>
       {groupedBy === "total" ? (
         <div className="flex">
-          <PieChart width={400} height={400} cx="50%" cy="50%">
+          <PieChart width={300} height={300} cx="50%" cy="50%">
             <Pie
               animationDuration={400}
               data={categoryInsights}
@@ -250,22 +279,49 @@ export const SpendChart = ({ expenses }: Props) => {
 
           <Table>
             <TableBody>
-              {categoryInsights.map(({ name, total, id }) => (
-                <TableRow key={name}>
-                  <TableCell>
-                    <Badge
-                      style={{ backgroundColor: COLORS[id % COLORS.length] }}
-                    >
-                      {name}
-                    </Badge>
-                  </TableCell>
-                  <TableCell>{formatPrice(total)}</TableCell>
-                  <TableCell>{Math.round((total / sum) * 100)}%</TableCell>
-                </TableRow>
-              ))}
+              {categoryInsights.map(({ name, total, id }) => {
+                const prevTotal = previousCategoryInsights.find(
+                  ({ id: prevId }) => prevId === id
+                )?.total;
+
+                const incrementFromLastPeriod = prevTotal
+                  ? Math.round(((total - prevTotal) / prevTotal) * 100)
+                  : undefined;
+
+                return (
+                  <TableRow key={name}>
+                    <TableCell>
+                      <Badge
+                        style={{ backgroundColor: COLORS[id % COLORS.length] }}
+                      >
+                        {name}
+                      </Badge>
+                    </TableCell>
+                    <TableCell>{formatPrice(total)}</TableCell>
+                    <TableCell>{Math.round((total / sum) * 100)}%</TableCell>
+                    {incrementFromLastPeriod && (
+                      <TableCell className="whitespace-nowrap flex-nowrap">
+                        {incrementFromLastPeriod > 0 ? "▲" : "▼"}{" "}
+                        {incrementFromLastPeriod}%
+                      </TableCell>
+                    )}
+                  </TableRow>
+                );
+              })}
               <TableRow>
                 <TableCell>Total</TableCell>
                 <TableCell>{formatPrice(sum)}</TableCell>
+                <TableCell></TableCell>
+                {sumIncrement &&
+                  (sumIncrement > 0 ? (
+                    <TableCell className="whitespace-nowrap flex-nowrap">
+                      ▲ {sumIncrement}%
+                    </TableCell>
+                  ) : (
+                    <TableCell className="whitespace-nowrap flex-nowrap">
+                      ▼ {sumIncrement}%
+                    </TableCell>
+                  ))}
               </TableRow>
             </TableBody>
           </Table>
