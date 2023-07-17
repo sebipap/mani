@@ -8,12 +8,12 @@ type Props = {
 };
 
 export const ExpensesTiles = ({ expenses }: Props) => {
-  const totalsPerDay = Object.entries(groupByCategoryByDay(expenses)).map(
-    ([date, categoryInsights]) => ({
-      date,
-      total: categoryInsights.reduce((acc, curr) => acc + curr.total, 0),
-    })
-  );
+  const totalsPerDay = Object.entries(
+    groupByCategoryByDay(expenses, "USD")
+  ).map(([date, categoryInsights]) => ({
+    date,
+    total: categoryInsights.reduce((acc, curr) => acc + curr.total, 0),
+  }));
   // render a grid of tiles each one representing a day
   // there are 7 rows, for each day of the week
 
