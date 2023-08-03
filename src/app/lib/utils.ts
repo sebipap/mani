@@ -112,11 +112,43 @@ export function groupByCategoryByWeek(
     }
   }
 
-  const ifPro = (a: boolean) => a;
-
-  ifPro(2 > 3);
-
   return weeks;
+}
+
+export function groupByCategoryByMonth(
+  expenses: Expense[],
+  currency: "USD" | "ARS"
+): Record<number, CategoryInsight[]> {
+  const months: Record<number, CategoryInsight[]> = {};
+
+  for (const [day, dayInsights] of Object.entries(
+    groupByCategoryByDay(expenses, currency)
+  )) {
+    const date = new Date(Number(day));
+    const month = new Date(date.getFullYear(), date.getMonth()).getTime();
+
+    if (months[month] === undefined) {
+      months[month] = dayInsights;
+      continue;
+    }
+
+    for (const { id, total, ...rest } of dayInsights) {
+      const monthInsights = months[month];
+
+      const monthCategoryInsight = monthInsights.find(
+        (monthInsight) => monthInsight.id === id
+      );
+
+      if (monthCategoryInsight === undefined) {
+        months[month].push({ id, total, ...rest });
+        continue;
+      }
+
+      monthCategoryInsight.total += total;
+    }
+  }
+
+  return months;
 }
 
 // example: Friday May 3

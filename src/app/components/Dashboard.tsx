@@ -88,7 +88,7 @@ export default function Dashboard(props: Props) {
           </div> */}
               <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-7">
                 <div className="flex flex-col max-w-[100%] col-span-4 gap-4">
-                  <Card className="overflow-scroll max-w-[100%]">
+                  <Card className="max-w-[100%]">
                     <CardHeader>
                       <CardTitle className="font-semibold leading-none tracking-tight">
                         Charts

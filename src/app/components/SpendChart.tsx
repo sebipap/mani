@@ -5,6 +5,7 @@ import {
   formatDate,
   groupByCategory,
   groupByCategoryByDay,
+  groupByCategoryByMonth,
   groupByCategoryByWeek,
 } from "@/app/lib/utils";
 import { isSameDay, isSameWeek } from "date-fns";
@@ -48,19 +49,28 @@ type CTProps = {
 };
 
 export const CustomTooltip = ({ active, payload, label }: CTProps) => {
-  if (active && payload && payload.length) {
-    return (
-      <div className="bg-black rounded-lg p-3">
-        <style>
-          {`  .recharts-text.recharts-cartesian-axis-tick-value > tspan {
-          font-size: 10px;
-        }`}
-        </style>
-        <p>{label}</p>
-        <div className="flex flex-col">
-          <Table>
-            <TableBody>
-              {payload.map((pld) => (
+  return active && payload && payload.length ? (
+    <div className="bg-black rounded-lg p-1 max-h-[400px] overflow-x-scroll z-10 ">
+      <style>
+        {`  .recharts-text.recharts-cartesian-axis-tick-value > tspan {
+        font-size: 10px;
+      }`}
+      </style>
+      <p>{label}</p>
+      <div className="flex flex-col ">
+        <Table>
+          <TableBody>
+            <TableRow>
+              <TableCell>Total</TableCell>
+              <TableCell className="m-0">
+                {formatPrice(
+                  payload.reduce((acc, pld) => acc + Number(pld.value), 0)
+                )}
+              </TableCell>
+            </TableRow>
+            {payload
+              .sort((p1, p2) => Number(p2.value) - Number(p1.value))
+              .map((pld) => (
                 <TableRow key={pld.dataKey}>
                   <TableCell>
                     <Badge
@@ -74,22 +84,11 @@ export const CustomTooltip = ({ active, payload, label }: CTProps) => {
                   <TableCell>{formatPrice(Number(pld.value))}</TableCell>
                 </TableRow>
               ))}
-              <TableRow>
-                <TableCell>Total</TableCell>
-                <TableCell>
-                  {formatPrice(
-                    payload.reduce((acc, pld) => acc + Number(pld.value), 0)
-                  )}
-                </TableCell>
-              </TableRow>
-            </TableBody>
-          </Table>
-        </div>
+          </TableBody>
+        </Table>
       </div>
-    );
-  }
-
-  return null;
+    </div>
+  ) : null;
 };
 
 type Props = {
@@ -115,7 +114,9 @@ export const SpendChart = ({ expenses }: Props) => {
   });
 
   const { from: minDate, to: maxDate } = dateRange || {};
-  const [groupedBy, setGroupedBy] = useState<"day" | "week" | "total">("total");
+  const [groupedBy, setGroupedBy] = useState<
+    "day" | "week" | "month" | "total"
+  >("total");
   const [category, setCategory] = useState<string>("all");
   const [currency, setCurrency] = useState<"USD" | "ARS">("USD");
 
@@ -176,6 +177,11 @@ export const SpendChart = ({ expenses }: Props) => {
     currency
   );
 
+  const categoryInsightsByMonth = groupByCategoryByMonth(
+    expensesFilteredByCategory,
+    currency
+  );
+
   const sum = categoryInsights.reduce((acc, { total }) => acc + total, 0);
   const prevSum = previousCategoryInsights.reduce(
     (acc, { total }) => acc + total,
@@ -183,7 +189,11 @@ export const SpendChart = ({ expenses }: Props) => {
   );
 
   const barChartData = Object.entries(
-    groupedBy === "day" ? categoryInsightsByDay : categoryInsightsByWeek
+    groupedBy === "day"
+      ? categoryInsightsByDay
+      : groupedBy === "week"
+      ? categoryInsightsByWeek
+      : categoryInsightsByMonth
   ).flatMap(([date, categories]) => {
     const isToday = isSameDay(Number(date), Date.now());
     const isThisWeek = isSameWeek(Number(date), Date.now(), {
@@ -194,6 +204,8 @@ export const SpendChart = ({ expenses }: Props) => {
         ? "Today"
         : groupedBy == "week" && isThisWeek
         ? "This week"
+        : groupedBy === "month"
+        ? new Date(Number(date)).getMonth() + 1
         : formatDate(Number(date));
     return {
       name,
@@ -238,7 +250,7 @@ export const SpendChart = ({ expenses }: Props) => {
 
         <Select
           value={groupedBy}
-          onValueChange={(value: "day" | "week" | "total") =>
+          onValueChange={(value: "day" | "week" | "month" | "total") =>
             setGroupedBy(value)
           }
         >
@@ -248,6 +260,7 @@ export const SpendChart = ({ expenses }: Props) => {
           <SelectContent>
             <SelectItem value={"day"}>Day</SelectItem>
             <SelectItem value={"week"}>Week</SelectItem>
+            <SelectItem value={"month"}>Month</SelectItem>
             <SelectItem value={"total"}>Total</SelectItem>
           </SelectContent>
         </Select>
