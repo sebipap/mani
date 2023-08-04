@@ -5,6 +5,7 @@ import { groupByCategoryByMonth, groupByMonth } from "@/app/lib/utils";
 import { Input } from "@/components/ui/input";
 import { memo, useEffect, useState } from "react";
 import { Bar, BarChart, Tooltip, XAxis, YAxis } from "recharts";
+import { COLORS, CustomTooltip } from "../SpendChart";
 
 type Props = {
   expenses: Expense[];
@@ -29,11 +30,27 @@ const Income = ({ expenses }: Props) => {
   const months = groupByMonth(expenses, "USD");
 
   const data = Object.entries(months)
-    .map(([month, total]) => ({
-      name: month,
-      spent: total,
-      saved: Number(income) - total,
-    }))
+    .map(([month, durations]) => {
+      const now = new Date();
+
+      const isCurrentMonth =
+        month === `${now.getMonth() + 1}/${now.getFullYear()}`;
+
+      return {
+        name: month,
+        instant: durations.instant || 0,
+        monthly: durations.monthly || 0,
+        yearly: durations.yearly || 0,
+        eternal: durations.eternal || 0,
+        saved: isCurrentMonth
+          ? 0
+          : Number(income) -
+            ((durations?.instant || 0) +
+              (durations?.monthly || 0) +
+              (durations?.yearly || 0) +
+              (durations?.eternal || 0)),
+      };
+    })
     .sort((a, b) => {
       const [monthA, yearA] = a.name.split("/");
       const [monthB, yearB] = b.name.split("/");
@@ -43,7 +60,7 @@ const Income = ({ expenses }: Props) => {
         (Number(yearB) * 12 + Number(monthB))
       );
     })
-    .splice(-5);
+    .splice(-4);
 
   return (
     <div>
@@ -54,12 +71,16 @@ const Income = ({ expenses }: Props) => {
         onChange={({ target: { value } }) => setIncome(value)}
       />
       <BarChart width={1000} height={400} data={data} key={"name"}>
-        <Bar dataKey="spent" fill="#8884d8" stackId="a" />
-        <Bar dataKey="saved" fill="#00ff33" stackId="a" />
-
-        <Tooltip />
+        <Bar dataKey="instant" fill={COLORS[0]} stackId="a" />
+        <Bar dataKey="eternal" fill={COLORS[1]} stackId="a" />
+        <Bar dataKey="saved" fill={COLORS[2]} stackId="a" />
+        <Bar dataKey="yearly" fill={COLORS[3]} stackId="a" />
+        <Bar dataKey="monthly" fill={COLORS[4]} stackId="a" />
+        <Tooltip
+          content={(x: any) => <CustomTooltip {...x} />}
+          cursor={{ fill: "transparent" }}
+        />{" "}
         <XAxis dataKey={"name"} fontSize={12} />
-        <YAxis dataKey={"spent"} fontSize={12} />
       </BarChart>
     </div>
   );

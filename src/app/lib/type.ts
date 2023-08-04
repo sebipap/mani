@@ -180,6 +180,66 @@ export const categoriesById = {
   50: "Guardería",
 };
 
+export type ConsumptionDuration =
+  | "instant"
+  | "monthly"
+  | "yearly"
+  | "eternal"
+  | "not a spending";
+
+export const categoriesConsumption: Record<string, ConsumptionDuration> = {
+  1: "monthly",
+  2: "monthly",
+  3: "monthly",
+  4: "monthly",
+  5: "monthly",
+  6: "monthly",
+  7: "monthly",
+  8: "monthly",
+  9: "monthly",
+  10: "monthly",
+  11: "instant",
+  12: "instant",
+  13: "instant",
+  14: "monthly",
+  15: "monthly",
+  16: "eternal",
+  17: "monthly",
+  18: "not a spending",
+  19: "instant",
+  20: "eternal",
+  21: "instant",
+  22: "instant",
+  23: "instant",
+  24: "instant",
+  25: "instant",
+  26: "instant",
+  27: "monthly",
+  28: "monthly",
+  29: "monthly",
+  30: "monthly",
+  31: "monthly",
+  32: "monthly",
+  33: "monthly",
+  34: "monthly",
+  35: "monthly",
+  36: "monthly",
+  37: "monthly",
+  38: "instant",
+  39: "eternal",
+  40: "monthly",
+  41: "eternal",
+  42: "eternal",
+  43: "monthly",
+  44: "monthly",
+  45: "monthly",
+  46: "monthly",
+  47: "monthly",
+  48: "monthly",
+  49: "monthly",
+  50: "monthly",
+};
+
 export const RECURRENT_CATEGORIES = [
   1, // Utilidades
   2, // Sin categoría

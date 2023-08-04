@@ -1,5 +1,10 @@
 import { startOfWeek } from "date-fns";
-import { CategoryInsight, Expense } from "./type";
+import {
+  CategoryInsight,
+  ConsumptionDuration,
+  Expense,
+  categoriesConsumption,
+} from "./type";
 
 export function groupByCategory(
   expenses: Expense[],
@@ -151,27 +156,18 @@ export function groupByCategoryByMonth(
   return months;
 }
 
-export function groupByMonth(
-  expenses: Expense[],
-  currency: "USD" | "ARS"
-): Record<string, number> {
-  const x = expenses
-    .filter(({ category }) => category.id !== 18)
-    .reduce((months, expense) => {
-      const m = `${expense.date.getMonth() + 1}/${expense.date.getFullYear()}`;
-
-      const monthTotal = months[m];
-
-      const y =
-        (monthTotal || 0) +
-        ((currency === "USD" ? expense?.costUSD : expense?.cost) || 0);
-
-      months[m] = y;
-
-      return months;
-    }, {} as Record<string, number>);
-
-  return x;
+export function groupByMonth(expenses: Expense[], currency: "USD" | "ARS") {
+  return expenses.reduce((months, expense) => {
+    const monthString = `${
+      expense.date.getMonth() + 1
+    }/${expense.date.getFullYear()}`;
+    const duration = categoriesConsumption[expense.category.id];
+    const newTotal =
+      (months[monthString]?.[duration] || 0) +
+      ((currency === "USD" ? expense?.costUSD : expense?.cost) || 0);
+    months[monthString] = { ...months[monthString], [duration]: newTotal };
+    return months;
+  }, {} as Record<string, Record<ConsumptionDuration, number>>);
 }
 
 // example: Friday May 3
