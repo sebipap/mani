@@ -6,6 +6,7 @@ import { SpendChart } from "./SpendChart";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Chat } from "./Chat";
 import { RecurrentExpenses } from "./RecurrentExpenses";
+import Income from "./Income";
 
 type Props = {
   expenses: Expense[];
@@ -24,10 +25,11 @@ export default function Dashboard(props: Props) {
               <UserNav />
             </div>
           </div>
-          <Tabs defaultValue="overview" className="space-y-4">
+          <Tabs defaultValue="income" className="space-y-4">
             <TabsList>
               <TabsTrigger value="overview">Overview</TabsTrigger>
               <TabsTrigger value="chat">Chat</TabsTrigger>
+              <TabsTrigger value="income">Income</TabsTrigger>
             </TabsList>
             <TabsContent value="overview" className="space-y-4">
               {/* <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
@@ -121,6 +123,9 @@ export default function Dashboard(props: Props) {
             </TabsContent>
             <TabsContent value="chat" className="space-y-4">
               <Chat expenses={expenses} />
+            </TabsContent>
+            <TabsContent value="income" className="space-y-4">
+              <Income expenses={expenses} />
             </TabsContent>
           </Tabs>
         </div>

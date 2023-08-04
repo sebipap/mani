@@ -207,9 +207,13 @@ export const SpendChart = ({ expenses }: Props) => {
         : groupedBy === "month"
         ? new Date(Number(date)).getMonth() + 1
         : formatDate(Number(date));
+
+    const x = Object.fromEntries(
+      categories.map(({ name, total }) => [name, total])
+    );
     return {
       name,
-      ...Object.fromEntries(categories.map(({ name, total }) => [name, total])),
+      ...x,
     };
   });
 
