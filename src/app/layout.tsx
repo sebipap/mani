@@ -1,5 +1,6 @@
 import "./globals.css";
 import { NextAuthProvider } from "./providers";
+import { Analytics } from "@vercel/analytics/react";
 
 export const metadata = {
   title: "My Mani",
@@ -15,6 +16,7 @@ export default function RootLayout({
     <html lang="en">
       <NextAuthProvider>
         <body>{children}</body>
+        <Analytics />
       </NextAuthProvider>
     </html>
   );
