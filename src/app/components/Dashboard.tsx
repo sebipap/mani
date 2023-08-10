@@ -25,7 +25,7 @@ export default function Dashboard(props: Props) {
               <UserNav />
             </div>
           </div>
-          <Tabs defaultValue="income" className="space-y-4">
+          <Tabs defaultValue="overview" className="space-y-4">
             <TabsList>
               <TabsTrigger value="overview">Overview</TabsTrigger>
               <TabsTrigger value="chat">Chat</TabsTrigger>
