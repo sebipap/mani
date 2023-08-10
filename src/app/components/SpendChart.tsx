@@ -109,7 +109,7 @@ export const COLORS = [
 
 export const SpendChart = ({ expenses }: Props) => {
   const [dateRange, setDateRange] = useState<DateRange | undefined>({
-    from: new Date(Date.now() - 1000 * 60 * 60 * 24 * 7),
+    from: new Date(Date.now() - 1000 * 60 * 60 * 24 * 30),
     to: new Date(),
   });
 
@@ -269,115 +269,122 @@ export const SpendChart = ({ expenses }: Props) => {
           </SelectContent>
         </Select>
       </div>
-      {groupedBy === "total" ? (
-        <div className="flex">
-          <PieChart width={300} height={300} cx="50%" cy="50%">
-            <Pie
-              animationDuration={400}
-              data={categoryInsights}
-              dataKey="total"
-              nameKey="name"
-              cx="50%"
-              cy="50%"
-              outerRadius={150}
-              innerRadius={80}
-              fillRule="evenodd"
-              color="#8884d8"
-              stroke="none"
-            >
-              {categoryInsights.map((entry, index) => (
-                <Cell
-                  key={`cell-${index}`}
-                  fill={COLORS[entry.id % COLORS.length]}
-                />
-              ))}
-            </Pie>
-          </PieChart>
+      <div className="p-5 ">
+        {groupedBy === "total" ? (
+          <div className="flex">
+            <PieChart width={300} height={300} cx="50%" cy="50%">
+              <Pie
+                animationDuration={400}
+                data={categoryInsights}
+                dataKey="total"
+                nameKey="name"
+                cx="50%"
+                cy="50%"
+                outerRadius={150}
+                innerRadius={80}
+                fillRule="evenodd"
+                color="#8884d8"
+                stroke="none"
+              >
+                {categoryInsights.map((entry, index) => (
+                  <Cell
+                    key={`cell-${index}`}
+                    fill={COLORS[entry.id % COLORS.length]}
+                  />
+                ))}
+              </Pie>
+            </PieChart>
+            <div className="max-h-[300px] overflow-scroll ">
+              <Table>
+                <TableBody>
+                  {categoryInsights.map(({ name, total, id }) => {
+                    const prevTotal = previousCategoryInsights.find(
+                      ({ id: prevId }) => prevId === id
+                    )?.total;
 
-          <Table>
-            <TableBody>
-              {categoryInsights.map(({ name, total, id }) => {
-                const prevTotal = previousCategoryInsights.find(
-                  ({ id: prevId }) => prevId === id
-                )?.total;
+                    const incrementFromLastPeriod = prevTotal
+                      ? Math.round(((total - prevTotal) / prevTotal) * 100)
+                      : undefined;
 
-                const incrementFromLastPeriod = prevTotal
-                  ? Math.round(((total - prevTotal) / prevTotal) * 100)
-                  : undefined;
-
-                return (
-                  <TableRow key={name}>
-                    <TableCell>
-                      <Badge
-                        style={{ backgroundColor: COLORS[id % COLORS.length] }}
-                      >
-                        {name}
-                      </Badge>
-                    </TableCell>
-                    <TableCell>{formatPrice(total)}</TableCell>
-                    <TableCell>{Math.round((total / sum) * 100)}%</TableCell>
-                    {incrementFromLastPeriod && (
-                      <TableCell className="whitespace-nowrap flex-nowrap">
-                        {incrementFromLastPeriod > 0 ? "▲" : "▼"}{" "}
-                        {incrementFromLastPeriod}%
-                      </TableCell>
-                    )}
+                    return (
+                      <TableRow key={name}>
+                        <TableCell>
+                          <Badge
+                            style={{
+                              backgroundColor: COLORS[id % COLORS.length],
+                            }}
+                          >
+                            {name}
+                          </Badge>
+                        </TableCell>
+                        <TableCell>{formatPrice(total)}</TableCell>
+                        <TableCell>
+                          {Math.round((total / sum) * 100)}%
+                        </TableCell>
+                        {incrementFromLastPeriod && (
+                          <TableCell className="whitespace-nowrap flex-nowrap">
+                            {incrementFromLastPeriod > 0 ? "▲" : "▼"}{" "}
+                            {incrementFromLastPeriod}%
+                          </TableCell>
+                        )}
+                      </TableRow>
+                    );
+                  })}
+                  <TableRow>
+                    <TableCell>Total</TableCell>
+                    <TableCell>{formatPrice(sum)}</TableCell>
+                    <TableCell></TableCell>
+                    {sumIncrement &&
+                      (sumIncrement > 0 ? (
+                        <TableCell className="whitespace-nowrap flex-nowrap">
+                          ▲ {sumIncrement}%
+                        </TableCell>
+                      ) : (
+                        <TableCell className="whitespace-nowrap flex-nowrap">
+                          ▼ {sumIncrement}%
+                        </TableCell>
+                      ))}
                   </TableRow>
-                );
-              })}
-              <TableRow>
-                <TableCell>Total</TableCell>
-                <TableCell>{formatPrice(sum)}</TableCell>
-                <TableCell></TableCell>
-                {sumIncrement &&
-                  (sumIncrement > 0 ? (
-                    <TableCell className="whitespace-nowrap flex-nowrap">
-                      ▲ {sumIncrement}%
-                    </TableCell>
-                  ) : (
-                    <TableCell className="whitespace-nowrap flex-nowrap">
-                      ▼ {sumIncrement}%
-                    </TableCell>
-                  ))}
-              </TableRow>
-            </TableBody>
-          </Table>
-        </div>
-      ) : (
-        <>
-          {/* ____________ */}
-          <ResponsiveContainer width={"100%"} height={300}>
-            <BarChart
-              className="mt-6"
-              data={barChartData}
-              width={500}
-              height={300}
-              margin={{
-                top: 20,
-                right: 30,
-                left: 20,
-                bottom: 5,
-              }}
-            >
-              <Tooltip
-                content={(x: any) => <CustomTooltip {...x} />}
-                cursor={{ fill: "transparent" }}
-              />
-
-              <XAxis dataKey={"name"} fontSize={12} />
-              {allCategories.map(({ name, id }) => (
-                <Bar
-                  dataKey={name}
-                  stackId="a"
-                  key={name}
-                  fill={COLORS[id % COLORS.length]}
-                  name={"name"}
+                </TableBody>
+              </Table>
+            </div>
+          </div>
+        ) : (
+          <>
+            {/* ____________ */}
+            <ResponsiveContainer width={"100%"} height={300}>
+              <BarChart
+                className="mt-6"
+                data={barChartData}
+                width={500}
+                height={300}
+                margin={{
+                  top: 20,
+                  right: 30,
+                  left: 20,
+                  bottom: 5,
+                }}
+              >
+                <Tooltip
+                  content={(x: any) => <CustomTooltip {...x} />}
+                  cursor={{ fill: "transparent" }}
                 />
-              ))}
-            </BarChart>
-          </ResponsiveContainer>
-        </>
-      )}
+
+                <XAxis dataKey={"name"} fontSize={12} />
+                {allCategories.map(({ name, id }) => (
+                  <Bar
+                    dataKey={name}
+                    stackId="a"
+                    key={name}
+                    fill={COLORS[id % COLORS.length]}
+                    name={"name"}
+                  />
+                ))}
+              </BarChart>
+            </ResponsiveContainer>
+          </>
+        )}
+      </div>
     </>
   );
 };

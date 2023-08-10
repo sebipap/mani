@@ -7,6 +7,8 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Chat } from "./Chat";
 import { RecurrentExpenses } from "./RecurrentExpenses";
 import Income from "./Income";
+import { Button } from "@/components/ui/button";
+import Link from "next/link";
 
 type Props = {
   expenses: Expense[];
@@ -22,13 +24,16 @@ export default function Dashboard(props: Props) {
           <div className="flex items-center justify-between space-y-2">
             <h2 className="text-3xl font-bold tracking-tight">🫰 mani</h2>
             <div className="flex items-center space-x-2">
+              <Link href={"https://t.me/sebipaps"}>
+                <Button variant={"outline"}> Give me feedback!</Button>
+              </Link>
               <UserNav />
             </div>
           </div>
           <Tabs defaultValue="overview" className="space-y-4">
             <TabsList>
               <TabsTrigger value="overview">Overview</TabsTrigger>
-              <TabsTrigger value="chat">Chat</TabsTrigger>
+              <TabsTrigger value="chat">Chat ✨</TabsTrigger>
               <TabsTrigger value="income">Income</TabsTrigger>
             </TabsList>
             <TabsContent value="overview" className="space-y-4">

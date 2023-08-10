@@ -3,6 +3,7 @@ import { CustomSession, authOptions } from "../api/auth/[...nextauth]/route";
 import { fetchUser, getExpenses } from "../lib/splitwise";
 import { Expense } from "../lib/type";
 import Dashboard from "./Dashboard";
+import mockExpenses from "../../mockExpenses.json";
 
 export default async function Expenses() {
   const session = await getServerSession(authOptions);
@@ -11,7 +12,10 @@ export default async function Expenses() {
     accessToken: undefined,
   };
 
-  let expenses: Expense[] = [];
+  let expenses: Expense[] = mockExpenses.map(({ date, ...rest }) => ({
+    ...rest,
+    date: new Date(date),
+  })) as unknown as Expense[];
 
   if (accessToken) {
     const user = await fetchUser(accessToken);
@@ -21,8 +25,6 @@ export default async function Expenses() {
         ? await getExpenses(accessToken, user.id)
         : [];
   }
-
-  if (expenses === undefined) return "loading";
 
   return <Dashboard expenses={expenses} />;
 }

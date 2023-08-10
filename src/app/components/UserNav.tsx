@@ -15,7 +15,7 @@ import { signIn, signOut, useSession } from "next-auth/react";
 
 export function UserNav() {
   const { data } = useSession();
-  if (!data) return <Button onClick={() => signIn()}>Log In</Button>;
+  if (!data) return <Button onClick={() => signIn()}>Connect Splitwise</Button>;
   const { user } = data;
   if (!user) return null;
   const { image, name, email } = user;
