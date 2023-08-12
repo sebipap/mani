@@ -3,16 +3,19 @@ declare global {
     analytics: any;
   }
 }
-type TrackEvent = "BUTTON_CLICKED";
+type TrackEvent = "BUTTON_CLICKED" | "PAGE_VIEWED";
 
 export function track(event: TrackEvent, properties?: any) {
-  console.log("track", event, properties);
   if (!window?.analytics) return;
   window.analytics.track(event, properties);
 }
 
 export function identify(userId: string, traits?: any) {
-  console.log("identify", userId, traits);
   if (!window?.analytics) return;
   window.analytics.identify(userId, traits);
+}
+
+export function page(name: string, properties?: any) {
+  if (!window?.analytics) return;
+  window.analytics.page(name, properties);
 }

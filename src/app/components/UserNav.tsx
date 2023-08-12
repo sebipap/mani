@@ -14,12 +14,14 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { signIn, signOut, useSession } from "next-auth/react";
-import { identify, track } from "../lib/analytics";
+import { identify, page, track } from "../lib/analytics";
 
 export function UserNav() {
   const { data } = useSession();
 
   useEffect(() => {
+    track("PAGE_VIEWED");
+
     if (data?.user) {
       const { user } = data;
 
