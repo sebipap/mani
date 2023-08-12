@@ -3,6 +3,7 @@ import { Command } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { signIn, useSession } from "next-auth/react";
+import { track } from "../lib/analytics";
 
 export default function AuthenticationPage() {
   const { status } = useSession();
@@ -33,7 +34,13 @@ export default function AuthenticationPage() {
                   variant="outline"
                   type="button"
                   disabled={isLoading}
-                  onClick={() => signIn()}
+                  onClick={() => {
+                    signIn();
+                    track("BUTTON_CLICKED", {
+                      text: isLoading ? "Loading..." : "Get Started",
+                      location: "AuthenticationPage",
+                    });
+                  }}
                 >
                   {isLoading ? "Loading..." : "Get Started"}
                 </Button>

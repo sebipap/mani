@@ -11,6 +11,7 @@ import {
 import { format } from "date-fns";
 import { Expense, RECURRENT_CATEGORIES } from "../lib/type";
 import { Card } from "@/components/ui/card";
+import { track } from "../lib/analytics";
 
 type Props = {
   expenses: Expense[];
@@ -140,12 +141,17 @@ function recurrentTxs(expenses: Expense[], month: number, sub: string) {
       <p
         key={exp.id}
         className={"text-lg"}
-        onClick={() =>
+        onClick={() => {
+          track("BUTTON_CLICKED", {
+            text: "✅",
+            location: "RecurrentExpenses",
+            expense: exp.description,
+          });
           alert(`
 													Description: ${exp.description}
 													Cost: ${exp.cost}
-													Date: ${format(new Date(exp.date), "dd/MM/yyyy")}	`)
-        }
+													Date: ${format(new Date(exp.date), "dd/MM/yyyy")}	`);
+        }}
       >
         ✅
       </p>

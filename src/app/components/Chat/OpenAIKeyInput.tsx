@@ -4,6 +4,7 @@ import { Card } from "@/components/ui/card";
 import { useState } from "react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
+import { track } from "@/app/lib/analytics";
 
 export const OpenAIKeyInput = () => {
   const [openAIKey, setOpenAIKey] = useState<string>("");
@@ -31,9 +32,12 @@ export const OpenAIKeyInput = () => {
           onClick={() => {
             // save the openAI api key to localStorage
             localStorage.setItem("openAIKey", openAIKey);
-
             // rerender
             window.location.reload();
+            track("BUTTON_CLICKED", {
+              text: "Ok",
+              location: "OpenAIKeyInput",
+            });
           }}
         >
           Ok
