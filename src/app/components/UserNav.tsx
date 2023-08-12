@@ -34,7 +34,7 @@ export function UserNav() {
         onClick={() => {
           signIn();
           track("BUTTON_CLICKED", {
-            name: "Log in",
+            text: "Log in",
             location: "User Nav",
           });
         }}
