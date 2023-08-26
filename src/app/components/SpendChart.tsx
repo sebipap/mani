@@ -1,6 +1,6 @@
 "use client";
 
-import { CategoryInsight, Expense } from "@/app/lib/type";
+import { CategoryInsight, Currency, Expense } from "@/app/lib/type";
 import {
   formatDate,
   groupByCategory,
@@ -34,7 +34,6 @@ import { DateRange } from "react-day-picker";
 import { Table, TableBody, TableCell, TableRow } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
 import { formatPrice } from "@/lib/utils";
-import { convertARStoUSD, fetchPrices } from "@/lib/currency";
 
 type CTProps = {
   active?: boolean;
@@ -46,9 +45,15 @@ type CTProps = {
     payload: Record<string, number>;
   }[];
   label: string;
+  currency: Currency;
 };
 
-export const CustomTooltip = ({ active, payload, label }: CTProps) => {
+export const CustomTooltip = ({
+  active,
+  payload,
+  label,
+  currency,
+}: CTProps) => {
   return active && payload && payload.length ? (
     <div className="bg-black rounded-lg p-1 max-h-[400px] overflow-x-scroll z-10 ">
       <style>
@@ -64,7 +69,8 @@ export const CustomTooltip = ({ active, payload, label }: CTProps) => {
               <TableCell>Total</TableCell>
               <TableCell className="m-0">
                 {formatPrice(
-                  payload.reduce((acc, pld) => acc + Number(pld.value), 0)
+                  payload.reduce((acc, pld) => acc + Number(pld.value), 0),
+                  currency
                 )}
               </TableCell>
             </TableRow>
@@ -81,7 +87,9 @@ export const CustomTooltip = ({ active, payload, label }: CTProps) => {
                       {pld.dataKey}
                     </Badge>
                   </TableCell>
-                  <TableCell>{formatPrice(Number(pld.value))}</TableCell>
+                  <TableCell>
+                    {formatPrice(Number(pld.value), currency)}
+                  </TableCell>
                 </TableRow>
               ))}
           </TableBody>
@@ -118,7 +126,7 @@ export const SpendChart = ({ expenses }: Props) => {
     "day" | "week" | "month" | "total"
   >("total");
   const [category, setCategory] = useState<string>("all");
-  const [currency, setCurrency] = useState<"USD" | "ARS">("USD");
+  const [currency, setCurrency] = useState<Currency>("USD");
 
   const expensesFilteredByDate = expenses.filter(
     ({ date }) => !minDate || !maxDate || (date >= minDate && date <= maxDate)
@@ -247,8 +255,16 @@ export const SpendChart = ({ expenses }: Props) => {
             <SelectValue placeholder="Currency" />
           </SelectTrigger>
           <SelectContent className="max-h-[350px]">
-            <SelectItem value={"ARS"}>{"ARS"}</SelectItem>
-            <SelectItem value={"USD"}>{"USD"}</SelectItem>
+            {[
+              ...new Set([
+                ...expenses.map(({ currencyCode }) => currencyCode),
+                "USD",
+              ]),
+            ].map((currency) => (
+              <SelectItem key={currency} value={currency}>
+                {currency}
+              </SelectItem>
+            ))}
           </SelectContent>
         </Select>
 
@@ -317,9 +333,9 @@ export const SpendChart = ({ expenses }: Props) => {
                             {name}
                           </Badge>
                         </TableCell>
-                        <TableCell>{formatPrice(total)}</TableCell>
+                        <TableCell>{formatPrice(total, currency)}</TableCell>
                         <TableCell>
-                          {Math.round((total / sum) * 100)}%
+                          {sum ? Math.round((total / sum) * 100) : "-"}%
                         </TableCell>
                         {incrementFromLastPeriod && (
                           <TableCell className="whitespace-nowrap flex-nowrap">
@@ -332,7 +348,7 @@ export const SpendChart = ({ expenses }: Props) => {
                   })}
                   <TableRow>
                     <TableCell>Total</TableCell>
-                    <TableCell>{formatPrice(sum)}</TableCell>
+                    <TableCell>{formatPrice(sum, currency)}</TableCell>
                     <TableCell></TableCell>
                     {sumIncrement &&
                       (sumIncrement > 0 ? (
@@ -366,7 +382,9 @@ export const SpendChart = ({ expenses }: Props) => {
                 }}
               >
                 <Tooltip
-                  content={(x: any) => <CustomTooltip {...x} />}
+                  content={(x: any) => (
+                    <CustomTooltip {...{ ...x, currency }} />
+                  )}
                   cursor={{ fill: "transparent" }}
                 />
 

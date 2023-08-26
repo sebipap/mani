@@ -44,7 +44,7 @@ export const ExpensesTable = ({ expenses }: Props) => (
           <TableCell>
             {currencyCode} {cost}
           </TableCell>
-          <TableCell>USD {costUSD}</TableCell>
+          <TableCell> {costUSD ? `USD ${costUSD}` : "-"}</TableCell>
           <TableCell>{formatDate(new Date(date).getTime())}</TableCell>
           <TableCell>
             <div className="flex gap-2">

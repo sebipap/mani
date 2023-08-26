@@ -54,6 +54,8 @@ export interface Expense {
   costUSD?: number;
 }
 
+export type Currency = Expense["currencyCode"];
+
 export interface RepaymentResponse {
   from: number;
   to: number;

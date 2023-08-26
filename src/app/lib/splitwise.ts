@@ -1,5 +1,9 @@
-import { addUSDPrice, fetchPrices } from "@/lib/currency";
-import { Expense, ExpenseResponse, User } from "./type";
+import {
+  addUSDPrice,
+  fetchARSQuotes,
+  fetchExchangeRateQuotes,
+} from "@/lib/currency";
+import { Currency, Expense, ExpenseResponse, User } from "./type";
 
 type ExpensesQueryParams = {
   group_id?: number;
@@ -65,7 +69,11 @@ export async function getExpenses(
 
   if (!expenses) return [];
 
-  const prices = await fetchPrices();
+  const currencies = [
+    ...new Set(expenses.map((expense) => expense.currency_code)),
+  ];
+
+  const prices = await fetchExchangeRateQuotes(currencies);
 
   return Promise.all(
     expenses

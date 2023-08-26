@@ -1,14 +1,19 @@
-import { Expense } from "@/app/lib/type";
+import { Currency, Expense } from "@/app/lib/type";
 
-export type QuoteResponse = {
+export type BluelyticsReponse = {
   date: Date;
   source: "Oficial" | "Blue";
   value_sell: number;
   value_buy: number;
 };
 
-export async function fetchPrices() {
-  const evolution: QuoteResponse[] = await fetch(
+export type Quote = {
+  date: Date;
+  value: number;
+};
+
+export async function fetchARSQuotes(): Promise<Quote[]> {
+  const evolution: BluelyticsReponse[] = await fetch(
     "https://api.bluelytics.com.ar/v2/evolution.json"
   ).then((res) => res.json());
   return evolution
@@ -19,7 +24,43 @@ export async function fetchPrices() {
     }));
 }
 
-export async function convertARStoUSD(
+type OpenExchangeRatesResponse = {
+  base: Currency;
+  rates: Record<Currency, number>;
+  timestamp: number;
+};
+
+export async function fetchCurrenciesQuotes(
+  currencies: Currency[]
+): Promise<Record<Currency, Quote[]>> {
+  if (!process.env.OPEN_EXCHANGE_RATES_APP_ID)
+    throw new Error("OPEN_EXCHANGE_RATES_APP_ID is not defined");
+  const { rates, timestamp } = (await fetch(
+    `https://openexchangerates.org/api/latest.json?app_id=${
+      process.env.OPEN_EXCHANGE_RATES_APP_ID
+    }&base=${"USD"}&symbols=${currencies.join(",")}}`
+  ).then((res) => res.json())) as OpenExchangeRatesResponse;
+  const date = new Date(timestamp);
+  const quotes = Object.fromEntries(
+    Object.entries(rates).map(([curr, value]) => [curr, [{ date, value }]])
+  );
+
+  return quotes;
+}
+
+export async function fetchExchangeRateQuotes(
+  currencies: Currency[]
+): Promise<Record<Currency, Quote[]>> {
+  const currenciesQuotes = await fetchCurrenciesQuotes(currencies);
+
+  if (currencies.includes("ARS")) {
+    currenciesQuotes["ARS"] = await fetchARSQuotes();
+  }
+
+  return currenciesQuotes;
+}
+
+export function convertARStoUSD(
   cost: number,
   date: Date,
   prices: { date: Date; value: number }[]
@@ -35,18 +76,30 @@ export async function convertARStoUSD(
   return Number((cost / closestPrice?.value).toFixed(2));
 }
 
+export function convertToUSD(
+  cost: number,
+  date: Date,
+  prices: Record<Currency, Quote[]>,
+  currencyCode: Currency
+) {
+  if (currencyCode === "USD") return cost;
+  if (currencyCode === "ARS") return convertARStoUSD(cost, date, prices["ARS"]);
+  const currencyQuotes = prices[currencyCode];
+  if (!currencyQuotes) return undefined;
+  const [lastQuote] = currencyQuotes;
+  return Number((cost / lastQuote.value).toFixed(2));
+}
+
 export async function addUSDPrice(
   expense: Expense,
-  prices: { date: Date; value: number }[]
+  prices: Record<Currency, Quote[]>
 ): Promise<Expense> {
   const { cost, currencyCode, date } = expense;
 
   const costUSD =
     currencyCode === "USD"
       ? cost
-      : currencyCode === "ARS"
-      ? await convertARStoUSD(cost, date, prices)
-      : undefined;
+      : convertToUSD(cost, date, prices, currencyCode);
 
   return { ...expense, costUSD };
 }

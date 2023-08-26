@@ -2,13 +2,14 @@ import { startOfWeek } from "date-fns";
 import {
   CategoryInsight,
   ConsumptionDuration,
+  Currency,
   Expense,
   categoriesConsumption,
 } from "./type";
 
 export function groupByCategory(
   expenses: Expense[],
-  currency: "USD" | "ARS"
+  currency: Currency
 ): CategoryInsight[] {
   const categoryIds = [
     ...new Set(expenses.map((expense) => expense.category.id)),
@@ -21,6 +22,9 @@ export function groupByCategory(
         .name || "",
     total: expenses
       .filter((expense) => expense.category.id === categoryId)
+      .filter(
+        ({ currencyCode }) => currency === "USD" || currencyCode === currency
+      )
       .reduce(
         (acc, expense) =>
           acc + (expense[currency === "USD" ? "costUSD" : "cost"] || 0),
@@ -36,7 +40,7 @@ export function groupByCategory(
 
 export function groupByCategoryByDay(
   expenses: Expense[],
-  currency: "USD" | "ARS"
+  currency: Currency
 ): Record<number, CategoryInsight[]> {
   const expensesByDay: Record<number, Expense[]> = expenses.reduce(
     (acc, expense) => {
@@ -85,7 +89,7 @@ export function groupByCategoryByDay(
 
 export function groupByCategoryByWeek(
   expenses: Expense[],
-  currency: "USD" | "ARS"
+  currency: Currency
 ): Record<number, CategoryInsight[]> {
   const weeks: Record<number, CategoryInsight[]> = {};
 
@@ -122,7 +126,7 @@ export function groupByCategoryByWeek(
 
 export function groupByCategoryByMonth(
   expenses: Expense[],
-  currency: "USD" | "ARS"
+  currency: Currency
 ): Record<number, CategoryInsight[]> {
   const months: Record<number, CategoryInsight[]> = {};
 
@@ -156,7 +160,7 @@ export function groupByCategoryByMonth(
   return months;
 }
 
-export function groupByMonth(expenses: Expense[], currency: "USD" | "ARS") {
+export function groupByMonth(expenses: Expense[], currency: Currency) {
   return expenses.reduce((months, expense) => {
     const monthString = `${
       expense.date.getMonth() + 1
