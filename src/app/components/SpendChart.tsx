@@ -61,7 +61,7 @@ export const CustomTooltip = ({
         font-size: 10px;
       }`}
       </style>
-      <p>{label}</p>
+      <p className="m-2">{label}</p>
       <div className="flex flex-col ">
         <Table>
           <TableBody>

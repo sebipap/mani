@@ -77,7 +77,7 @@ const Income = ({ expenses }: Props) => {
         <Bar dataKey="yearly" fill={COLORS[3]} stackId="a" />
         <Bar dataKey="monthly" fill={COLORS[4]} stackId="a" />
         <Tooltip
-          content={(x: any) => <CustomTooltip {...x} />}
+          content={(x: any) => <CustomTooltip {...{ ...x, currency: "USD" }} />}
           cursor={{ fill: "transparent" }}
         />{" "}
         <XAxis dataKey={"name"} fontSize={12} />
