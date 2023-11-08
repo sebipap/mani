@@ -55,7 +55,7 @@ export const CustomTooltip = ({
   currency,
 }: CTProps) => {
   return active && payload && payload.length ? (
-    <div className="bg-black rounded-lg p-1 max-h-[400px] overflow-x-scroll z-10 ">
+    <div className="bg-black rounded-lg p-1 overflow-x-scroll z-10 ">
       <style>
         {`  .recharts-text.recharts-cartesian-axis-tick-value > tspan {
         font-size: 10px;

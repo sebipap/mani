@@ -42,6 +42,11 @@ const Income = ({ expenses }: Props) => {
         monthly: durations.monthly || 0,
         yearly: durations.yearly || 0,
         eternal: durations.eternal || 0,
+        totalSpent:
+          (durations.instant || 0) +
+          (durations.monthly || 0) +
+          (durations.yearly || 0) +
+          (durations.eternal || 0),
         saved: isCurrentMonth
           ? 0
           : Number(income) -
@@ -71,11 +76,12 @@ const Income = ({ expenses }: Props) => {
         onChange={({ target: { value } }) => setIncome(value)}
       />
       <BarChart width={1000} height={400} data={data} key={"name"}>
-        <Bar dataKey="instant" fill={COLORS[0]} stackId="a" />
-        <Bar dataKey="eternal" fill={COLORS[1]} stackId="a" />
+        <Bar dataKey="instant" fill={COLORS[0]} stackId="b" />
+        <Bar dataKey="eternal" fill={COLORS[1]} stackId="b" />
+        <Bar dataKey="yearly" fill={COLORS[3]} stackId="b" />
+        <Bar dataKey="monthly" fill={COLORS[4]} stackId="b" />
+        <Bar dataKey="totalSpent" fill={COLORS[5]} stackId="c" />
         <Bar dataKey="saved" fill={COLORS[2]} stackId="a" />
-        <Bar dataKey="yearly" fill={COLORS[3]} stackId="a" />
-        <Bar dataKey="monthly" fill={COLORS[4]} stackId="a" />
         <Tooltip
           content={(x: any) => <CustomTooltip {...{ ...x, currency: "USD" }} />}
           cursor={{ fill: "transparent" }}
