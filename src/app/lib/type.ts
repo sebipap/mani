@@ -224,7 +224,7 @@ export const categoriesConsumption: Record<string, ConsumptionDuration> = {
   32: "monthly",
   33: "monthly",
   34: "monthly",
-  35: "monthly",
+  35: "yearly",
   36: "monthly",
   37: "monthly",
   38: "instant",
