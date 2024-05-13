@@ -19,7 +19,7 @@ export interface CustomSession extends Session {
   accessToken?: string;
 }
 
-export const authOptions: AuthOptions = {
+const authOptions: AuthOptions = {
   providers: [SplitwiseProvider],
   callbacks: {
     async jwt({ token, account }) {
