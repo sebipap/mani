@@ -1,9 +1,10 @@
 import { getServerSession } from "next-auth";
-import { CustomSession, authOptions } from "../api/auth/[...nextauth]/route";
+import { CustomSession } from "../api/auth/[...nextauth]/route";
 import { fetchUser, getExpenses } from "../lib/splitwise";
 import { Expense } from "../lib/type";
 import Dashboard from "./Dashboard";
 import mockExpenses from "../../mockExpenses.json";
+import authOptions from "../../lib/authOptions";
 
 export default async function Expenses() {
   const session = await getServerSession(authOptions);

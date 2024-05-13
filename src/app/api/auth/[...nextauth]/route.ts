@@ -1,6 +1,7 @@
 import { SplitwiseProvider } from "@/app/lib/SplitwiseProvider";
 import NextAuth, { AuthOptions } from "next-auth";
 import { Session } from "next-auth";
+import authOptions from "../../../../lib/authOptions";
 
 export type User = {
   id: number;
@@ -18,24 +19,6 @@ export type User = {
 export interface CustomSession extends Session {
   accessToken?: string;
 }
-
-const authOptions: AuthOptions = {
-  providers: [SplitwiseProvider],
-  callbacks: {
-    async jwt({ token, account }) {
-      // Persist the OAuth access_token to the token right after signin
-      if (account) {
-        token.accessToken = account.access_token;
-      }
-      return token;
-    },
-    async session({ session, token, user }) {
-      // Send properties to the client, like an access_token from a provider.
-      (session as CustomSession).accessToken = token.accessToken as string;
-      return session;
-    },
-  },
-};
 
 const handler = NextAuth(authOptions);
 
