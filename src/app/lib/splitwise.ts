@@ -75,40 +75,43 @@ export async function getExpenses(
 
   const prices = await fetchExchangeRateQuotes(currencies);
 
-  return Promise.all(
-    expenses
-      .filter(({ deleted_at }) => !deleted_at)
-      .map((expense) => {
-        const {
-          id,
-          description,
-          details,
-          payment,
-          currency_code,
-          date,
-          created_at,
-          deleted_at,
-          category,
-          users,
-          cost,
-        } = expense;
-        return {
-          id,
-          description,
-          details,
-          payment,
-          currencyCode: currency_code,
-          date: new Date(date),
-          createdAt: new Date(created_at),
-          deletedAt: new Date(deleted_at),
-          category,
-          users,
-          groupTotal: Number(cost),
-          cost: expenseShareCost(expense, userId),
-        };
-      })
-      .map((expense) => addUSDPrice(expense, prices))
-  );
+  let finalExpenses = [];
+
+  for (const expense of expenses) {
+    if (expense.deleted_at) continue;
+
+    const {
+      id,
+      description,
+      details,
+      payment,
+      currency_code,
+      date,
+      created_at,
+      deleted_at,
+      category,
+      users,
+      cost,
+    } = expense;
+
+    const current = {
+      id,
+      description,
+      details,
+      payment,
+      currencyCode: currency_code,
+      date: new Date(date),
+      createdAt: new Date(created_at),
+      deletedAt: new Date(deleted_at),
+      category,
+      users,
+      groupTotal: Number(cost),
+      cost: expenseShareCost(expense, userId),
+    };
+
+    finalExpenses.push(addUSDPrice(current, prices));
+  }
+  return finalExpenses;
 }
 
 /**

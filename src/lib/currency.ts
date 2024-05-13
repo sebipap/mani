@@ -90,10 +90,10 @@ export function convertToUSD(
   return Number((cost / lastQuote.value).toFixed(2));
 }
 
-export async function addUSDPrice(
+export function addUSDPrice(
   expense: Expense,
   prices: Record<Currency, Quote[]>
-): Promise<Expense> {
+): Expense {
   const { cost, currencyCode, date } = expense;
 
   const costUSD =
