@@ -129,6 +129,7 @@ export function expenseShareCost(expense: ExpenseResponse, userId: number) {
   }
 
   let totalSpent = 0;
+  let totalRepaymentsReceived = 0;
   for (const repayment of expense.repayments) {
     const { amount, from: expenseBorrower, to: expensePayer } = repayment;
 
@@ -136,8 +137,11 @@ export function expenseShareCost(expense: ExpenseResponse, userId: number) {
       totalSpent += parseFloat(amount);
     }
     if (expensePayer === userId) {
-      totalSpent += parseFloat(expense.cost) - parseFloat(amount);
+      totalRepaymentsReceived += parseFloat(amount);
     }
+  }
+  if (totalRepaymentsReceived > 0) {
+    totalSpent = parseFloat(expense.cost) - totalRepaymentsReceived;
   }
   return totalSpent;
 }
